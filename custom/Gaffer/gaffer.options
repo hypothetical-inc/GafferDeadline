@@ -1,0 +1,60 @@
+[Script]
+Type=string
+Label=Script
+Category=Gaffer Options
+CategoryOrder=0
+Index=0
+Description=The Gaffer script to execute.
+Required=true
+DisableIfBlank=true
+
+[Version]
+Type=label
+Label=Version
+Category=Gaffer Options
+Index=1
+Description=The version of Gaffer to execute.
+Required=false
+DisableIfBlank=true
+
+[IgnoreScriptLoadErrors]
+Type=boolean
+Label=Ignore Script Load Errors
+Category=Gaffer Options
+CategoryOrder=0
+Index=2
+Description=Causes error which occur while load the script to be ignored. Not recommended.
+Required=false
+Default=false
+DisableIfBlank=false
+
+[Nodes]
+Type=string
+Label=Nodes
+Category=Gaffer Options
+CategoryOrder=0
+Index=2
+Description=The names of the nodes to execute. If not specified then all executable nodes will be found automatically.
+Required=false
+DisableIfBlank=false
+
+[Frames]
+Type=string
+Label=Frames
+Category=Gaffer Options
+CategoryOrder=0
+Index=3
+Description=The frames to execute. The default value executes the current frame as stored in the script.
+Required=false
+DisableIfBlank=false
+Default=false
+
+[Context]
+Type=string
+Label=Context
+CategoryOrder=0
+Index=4
+Category=Gaffer Options
+Description=The context used during the execution. Note that the frames parameter will be used to vary the context frame entry.
+Required=false
+DisableIfBlank=false
