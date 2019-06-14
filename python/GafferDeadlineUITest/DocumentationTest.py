@@ -50,6 +50,7 @@ import GafferDeadlineUI
 
 class DocumentationTest(GafferUITest.TestCase):
 
+    @unittest.expectedFailure
     def test(self):
 
         self.maxDiff = None
