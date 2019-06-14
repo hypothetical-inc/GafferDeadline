@@ -34,8 +34,15 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ##########################################################################
+import unittest
 
+import IECore
+
+import Gaffer
+import GafferTest
+import GafferUI
 import GafferUITest
+
 import GafferDispatch
 import GafferDeadline
 import GafferDeadlineUI
