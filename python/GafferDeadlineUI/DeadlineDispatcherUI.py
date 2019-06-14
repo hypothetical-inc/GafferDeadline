@@ -213,7 +213,7 @@ Gaffer.Metadata.registerNode(
             "preset:Full Job", "Job",
             "preset:Per Frame", "Frame",
             "preset:Scripted", "Script",
-            "preset:Scripted", "None"
+            "preset:Scripted", "None",
 
             "userDefault", "Auto",
 
