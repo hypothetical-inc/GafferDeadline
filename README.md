@@ -39,7 +39,7 @@ To run the unit tests, you need to have an installation of Gaffer and have your 
 
 More specifically:
 1. PATH environment variable needs to include the gaffer/bin, gaffer/lib (on Windows) and gaffer/python directories.
-2. PYTHONPATH environment variable needs to include the gaffer/python directory.
+2. PYTHONPATH environment variable needs to include the gaffer/python directory and the GafferDeadline/python directory.
 3. On Linux the LD_LIBRARY_PATH needs to be set to the gaffer/lib directory.
 
 There is also a Visual Studio Code environment included that may be helpful.
