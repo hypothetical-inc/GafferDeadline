@@ -8,13 +8,13 @@ GafferDeadline will auto-detect the most efficient method of setting up dependen
 It is tested on Linux and the beta Windows Gaffer build. OS X compatibility is unknown.
 
 ## Installing ##
- 1. Extract the archive / clone the repostory to a directory accessible to Gaffer.
- 2. Move the "Gaffer" subdirectory to your Deadline repository "custom/plugins" directory. This is the Deadline plugin that will run Gaffer jobs on your render farm.
- 3. Add the directory where you extracted / cloned the repository to the GAFFER_EXTENSION_PATHS environment variable before running Gaffer.
- 4. Move the gaffer_batch_dependency.py file to a location where all of your Deadline Slaves and Pulse machines can access the file. Deadline will run that script according to your repository settings to check for tasks that can be released from pending status based on their dependencies being completed.
- If you have multiple operating systems in your Deadline installation, you will likely need to set up path mapping for machines to locate the script.
- 5. Set the DEADLINE_DEPENDENCY_SCRIPT_PATH environment variable to the full path (including filename) where you saved the gaffer_batch_dependency.py file before running Gaffer. GafferDeadline dispatcher uses this variable as the location for the dependency script when submitting jobs to Deadline.
- 6. Ensure that the DEADLINE_PATH environment variable is set to the directory where the "deadlinecommand" executable lives. This is typically set system-wide when you install the Deadline Client. GafferDeadline uses this environment variable to locate "deadlinecommand" for interacting with your Deadline repository.
+1. Extract the archive / clone the repository to a directory accessible to Gaffer.
+2. Move the "Gaffer" subdirectory to your Deadline repository "custom/plugins" directory. This is the Deadline plugin that will run Gaffer jobs on your render farm.
+3. Add the directory where you extracted / cloned the repository to the GAFFER_EXTENSION_PATHS environment variable before running Gaffer.
+4. Move the gaffer_batch_dependency.py file to a location where all of your Deadline Slaves and Pulse machines can access the file. Deadline will run that script according to your repository settings to check for tasks that can be released from pending status based on their dependencies being completed.
+If you have multiple operating systems in your Deadline installation, you will likely need to set up path mapping for machines to locate the script.
+5. Set the DEADLINE_DEPENDENCY_SCRIPT_PATH environment variable to the full path (including filename) where you saved the gaffer_batch_dependency.py file before running Gaffer. GafferDeadline dispatcher uses this variable as the location for the dependency script when submitting jobs to Deadline.
+6. Ensure that the DEADLINE_PATH environment variable is set to the directory where the "deadlinecommand" executable lives. This is typically set system-wide when you install the Deadline Client. GafferDeadline uses this environment variable to locate "deadlinecommand" for interacting with your Deadline repository.
 
 ## Using ##
 With everything set up correctly, Task Nodes in Gaffer will have a Deadline section on their Dispatcher tab. This section is where you setup the Deadline configuration for that task. You can set most common settings like groups, pools, priority, description, etc.
