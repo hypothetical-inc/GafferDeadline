@@ -28,9 +28,9 @@ With everything set up correctly, Task Nodes in Gaffer will have a Deadline sect
 
 When you are ready to submit the node(s) press the node's "Execute" button and select Deadline from the dropdown box of available dispatchers.
 
-You need a Deadline Client installed and connected to your repository on the machines you will be running GafferDeadline from. GafferDeadline uses the Deadline installation on the host machine, similar to other integrated submitters Deadline includes such as for Nuke, Houdini, etc.
+You need a Deadline Client installed and connected to your repository on the machines you will be running GafferDeadline from. GafferDeadline uses the Deadline installation on the host machine, similar to other integrated submitters Deadline includes for Nuke, Houdini, etc.
 
-The Deadline settings in Gaffer include an override for the dependency method for that node. This override controls downstream Task Nodes that depend on the node on which it was set. Most of the time it should be left on Auto to let the dispatcher determine the most efficient method. If you know a node needs to be handled in a particular way, you can force its dendency method with the override plug. Usually the "Full Job" setting will be the safest but least flexible because downstream tasks will wait for all frames of that job to complete before being released.
+The Deadline settings in Gaffer include an override for the dependency method for that node. This override controls downstream Task Nodes that depend on the node on which it was set. Most of the time it should be left on Auto to let the dispatcher determine the most efficient method. If you know a node needs to be handled in a particular way, you can force its dependency method with the override plug. Usually the "Full Job" setting will be the safest but least flexible because downstream tasks will wait for all frames of that job to complete before being released.
 
 ## Running Unit Tests ##
 You don't need to run the unit tests for normal use of GafferDeadline, but if you want to make customizations it is recommended that you add unit tests as appropriate and run the existing tests to ensure compatibility.
