@@ -16,6 +16,13 @@ If you have multiple operating systems in your Deadline installation, you will l
 5. Set the DEADLINE_DEPENDENCY_SCRIPT_PATH environment variable to the full path (including filename) where you saved the gaffer_batch_dependency.py file before running Gaffer. GafferDeadline dispatcher uses this variable as the location for the dependency script when submitting jobs to Deadline.
 6. Ensure that the DEADLINE_PATH environment variable is set to the directory where the "deadlinecommand" executable lives. This is typically set system-wide when you install the Deadline Client. GafferDeadline uses this environment variable to locate "deadlinecommand" for interacting with your Deadline repository.
 
+## Deadline Setup ##
+Once you have the Gaffer plugin copied to your Deadline "custom/plugins" directory you need to setup the Gaffer plugin in Deadline. In Super-User Mode in Deadline Monitor, go to Tools -> Configure Plugins. Select Gaffer from the list and add the paths to your Gaffer executables as they are found on your workstations and rendering machines. To support more than one Gaffer version in a single studio, GafferDeadline adds the version of Gaffer that is submitting the job to the Deadline Job settings. The Gaffer plugin looks for an executable of the same version and will fail if it is not found. If you are using a Gaffer version that GafferDeadline is not configured for, it's easy to add that version:
+1. Open the gaffer.param file from your \<Deadline Repository\>/custom/plugins/gaffer directory.
+2. Copy and paste the block starting with [Executable0_53_0_0] (or similar) to add a new entry.
+3. Change the version number to the exact version of Gaffer you are running: [Executable0_51_0_1] corresponds to Gaffer version 0.51.0.1.
+4. Save the file and open up Configure Plugins again and the new version will be available to set the Gaffer binary locations.
+
 ## Using ##
 With everything set up correctly, Task Nodes in Gaffer will have a Deadline section on their Dispatcher tab. This section is where you setup the Deadline configuration for that task. You can set most common settings like groups, pools, priority, description, etc.
 
