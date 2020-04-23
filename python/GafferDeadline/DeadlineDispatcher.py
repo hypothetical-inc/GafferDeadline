@@ -211,6 +211,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         "LimitGroups": deadline_plug["limits"].getValue(),
                         "OnJobComplete": deadline_plug["onJobComplete"].getValue(),
                         "InitialStatus": initial_status,
+                        "EnvironmentKeyValue0": "IECORE_LOG_LEVEL=INFO",   # GafferVRay uses INFO log level for progress output
                         }
 
             """ Dependencies are stored with a reference to the Deadline job since job IDs weren't assigned

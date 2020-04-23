@@ -64,6 +64,9 @@ def CleanupDeadlinePlugin(deadlinePlugin):
 
 
 class GafferPlugin(DeadlinePlugin):
+    Progress = 0
+    CurrFrame = 0
+    
     def __init__(self):
         self.InitializeProcessCallback += self.InitializeProcess
         # self.RenderTasksCallback += self.RenderTasks
@@ -90,6 +93,14 @@ class GafferPlugin(DeadlinePlugin):
         # Vray's ply2vrmesh prints out lines for each frame and also each voxel within the frame
         self.AddStdoutHandlerCallback(".*Subdividing frame ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshFrameProgress
         self.AddStdoutHandlerCallback(".*Processing voxel ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshVoxelProgress
+
+        # GafferVRay progress matches that of VRay
+        self.AddStdoutHandlerCallback("error:.*").HandleCallback += self.HandleGafferVRayStdoutError
+        self.AddStdoutHandlerCallback(".*Rendering image.*:\s*([0-9]*\.[0-9]*)%.*").HandleCallback += self.HandleGafferVRayStdoutProgress
+        self.AddStdoutHandlerCallback(".*Rendering image...: done.*").HandleCallback += self.HandleGafferVRayStdoutComplete
+        self.AddStdoutHandlerCallback(".*Starting frame ([0-9]*).*").HandleCallback += self.HandleGafferVRayStdoutStartFrame
+        self.AddStdoutHandlerCallback(".*Closing log.*").HandleCallback += self.HandleGafferVRayStdoutClosing
+        self.AddStdoutHandlerCallback( ".*Frame took.*" ).HandleCallback += self.HandleGafferVRayStdoutClosing
 
     def GetRenderExecutable(self):
         self.Version = self.GetPluginInfoEntry("Version")
@@ -160,6 +171,34 @@ class GafferPlugin(DeadlinePlugin):
 
         self.SetProgress(((self.currentFrame / self.totalFrames) + (voxelProgress * 1.0 / self.totalFrames)) * 100)
         self.SetStatusMessage("Ply2Vrmesh: Processing Voxel {}/{} @ frame {}/{}".format(currentVoxel, totalVoxels, self.currentFrame, self.totalFrames))
+
+    # GafferVRay Out Handlers
+    def HandleGafferVRayStdoutError(self):
+        self.FailRender(self.GetRegexMatch(0))
+        self.UpdateProgress()
+
+    def HandleGafferVRayStdoutProgress(self):
+        self.Progress = float(self.GetRegexMatch(1))
+        self.UpdateProgress()
+
+    def HandleGafferVRayStdoutComplete(self):
+        self.Progress = 100
+        self.UpdateProgress()
+
+    def HandleGafferVRayStdoutStartFrame(self):
+        self.CurrFrame = float(self.GetRegexMatch(1))
+        self.SetStatusMessage("Rendering Frame - " + self.GetRegexMatch(1))
+
+    def HandleGafferVRayStdoutClosing(self):
+        self.SetStatusMessage("Job Complete")
+
+    # Helper Functions
+    def UpdateProgress(self):
+        if((self.GetStartFrame() - self.GetEndFrame()) == 0):
+            self.SetProgress(self.Progress)
+        else:
+            self.SetProgress((((1.0 / (self.GetEndFrame() - self.GetStartFrame() + 1))) * self.Progress) + (
+                (((self.CurrFrame - self.GetStartFrame()) * 1.0) / (((self.GetEndFrame() - self.GetStartFrame() + 1) * 1.0))) * 100))
 
     def replaceSlashesByOS(self, value):
         if SystemUtils.IsRunningOnWindows():
