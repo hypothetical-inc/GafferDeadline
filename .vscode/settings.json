@@ -1,11 +1,11 @@
 {
     "python.linting.pylintEnabled": false,
-    "python.linting.pep8Enabled": true,
+    "python.linting.pycodestyleEnabled": true,
     "python.linting.enabled": true,
     "python.testing.unittestEnabled": true,
-    "python.testing.pyTestEnabled": false,
+    "python.testing.pytestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.pythonPath": "${env:GAFFER_ROOT}/bin/python.exe",
+    "python.pythonPath": "C:\\Python27\\python.exe",
     "python.testing.cwd": "./python",
     "python.testing.unittestArgs": [
         "-v",
