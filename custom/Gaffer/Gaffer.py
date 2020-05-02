@@ -87,8 +87,9 @@ class GafferPlugin(DeadlinePlugin):
         self.PluginType = PluginType.Simple
         self.StdoutHandling = True
 
-        # Generic Gaffer progress
+        # Generic Gaffer progress and error
         self.AddStdoutHandlerCallback(".*Progress: (\d+)%.*").HandleCallback += self.HandleProgress
+        self.AddStdoutHandlerCallback(".*ERROR : .*").HandleCallback += self.HandleGafferError
 
         # Vray's ply2vrmesh prints out lines for each frame and also each voxel within the frame
         self.AddStdoutHandlerCallback(".*Subdividing frame ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshFrameProgress
@@ -155,6 +156,10 @@ class GafferPlugin(DeadlinePlugin):
     def HandleProgress(self):
         progress = float(self.GetRegexMatch(1))
         self.SetProgress(progress)
+
+    def HandleGafferError(self):
+        self.FailRender(self.GetRegexMatch(0))
+        self.UpdateProgress()
      
     def HandlePly2VrmeshFrameProgress(self):
         self.currentFrame = float(self.GetRegexMatch(1)) - 1.0
