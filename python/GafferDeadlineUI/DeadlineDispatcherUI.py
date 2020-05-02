@@ -219,6 +219,17 @@ Gaffer.Metadata.registerNode(
 
             "plugValueWidget:type", "GafferUI.PresetsPlugValueWidget",
         ],
+        "dispatcher.deadline.auxFiles": [
+            "description",
+            """
+            A list of additional files to be included with the Deadline submission as auxiliary files.
+            The submitter will upload them to the Deadline repository and Workers will download the files
+            to their local job directory. An environment variable AUXFILEDIRECTORY is set by Deadline
+            and can be referenced in Gaffer scripts using standard environment variable substitution such as
+            ${AUXFILEDIRECTORY}/file.exr
+            """,
+            "plugValueWidget:type", "GafferUI.FileSystemPathVectorDataPlugValueWidget",
+        ],
     }
 
 )

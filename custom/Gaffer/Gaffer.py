@@ -103,6 +103,8 @@ class GafferPlugin(DeadlinePlugin):
         self.AddStdoutHandlerCallback(".*Closing log.*").HandleCallback += self.HandleGafferVRayStdoutClosing
         self.AddStdoutHandlerCallback( ".*Frame took.*" ).HandleCallback += self.HandleGafferVRayStdoutClosing
 
+        self.SetEnvironmentVariable("AUXFILEDIRECTORY", self.GetJobsDataDirectory())
+
     def GetRenderExecutable(self):
         self.Version = self.GetPluginInfoEntry("Version")
         gafferExeList = self.GetConfigEntry("Executable" + str(self.Version).replace(".", "_"))

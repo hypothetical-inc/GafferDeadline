@@ -213,6 +213,10 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         "InitialStatus": initial_status,
                         "EnvironmentKeyValue0": "IECORE_LOG_LEVEL=INFO",   # GafferVRay uses INFO log level for progress output
                         }
+                        
+            auxFiles = deadline_job.getAuxFiles()
+            auxFiles += deadline_plug["auxFiles"].getValue()
+            deadline_job.setAuxFiles(auxFiles)
 
             """ Dependencies are stored with a reference to the Deadline job since job IDs weren't assigned
             when the task tree was walked. Now that parent jobs have been submitted and have IDs,
@@ -375,6 +379,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         parent_plug["deadline"]["submitSuspended"] = Gaffer.BoolPlug(defaultValue=False)
         parent_plug["deadline"]["dependencyMode"] = Gaffer.StringPlug()
         parent_plug["deadline"]["dependencyMode"].setValue("Auto")
+        parent_plug["deadline"]["auxFiles"] = Gaffer.StringVectorDataPlug(defaultValue=IECore.StringVectorData())
 
 IECore.registerRunTimeTyped(DeadlineDispatcher, typeName="GafferDeadline::DeadlineDispatcher")
 
