@@ -72,6 +72,7 @@ class GafferPlugin(DeadlinePlugin):
         # self.RenderTasksCallback += self.RenderTasks
         self.RenderExecutableCallback += self.GetRenderExecutable
         self.RenderArgumentCallback += self.GetRenderArguments
+        self.PreRenderTasksCallback += self.PreRenderTasks
         # Some tasks like Ply2Vrmesh and Houdini sims handle multiple frames rather than a separate Deadline task per frame
         self.currentFrame = 0.0
         self.totalFrames = 0.0
@@ -105,6 +106,25 @@ class GafferPlugin(DeadlinePlugin):
 
         self.SetEnvironmentVariable("AUXFILEDIRECTORY", self.GetJobsDataDirectory())
 
+    def PreRenderTasks(self):
+        self.LogInfo("Performing path mapping")
+
+        script = RepositoryUtils.CheckPathMapping(self.GetPluginInfoEntryWithDefault("Script", "").strip())
+        script = self.replaceSlashesByOS(script)
+        localScript = os.path.join(self.GetJobsDataDirectory(), script)
+        if not os.path.isfile(localScript):
+            self.FailRender("Could not find Gaffer script {}".format(localScript))
+
+        tempSceneDirectory = self.CreateTempDirectory("thread" + str(self.GetThreadNumber()))
+        tempSceneFilename = Path.Combine(tempSceneDirectory, Path.GetFileName(localScript))
+
+        with open(localScript) as inFile, open(tempSceneFilename, "w") as outFile:
+            for line in inFile:
+                newLine = RepositoryUtils.CheckPathMapping(line)
+                outFile.write(newLine)
+        
+        self._gafferScript = tempSceneFilename
+
     def GetRenderExecutable(self):
         self.Version = self.GetPluginInfoEntry("Version")
         gafferExeList = self.GetConfigEntry("Executable" + str(self.Version).replace(".", "_"))
@@ -116,11 +136,10 @@ class GafferPlugin(DeadlinePlugin):
         return gafferExe
 
     def GetRenderArguments(self):
-        script = RepositoryUtils.CheckPathMapping(self.GetPluginInfoEntryWithDefault("Script", "").strip())
-        script = self.replaceSlashesByOS(script)
-        local_script = os.path.join(self.GetJobsDataDirectory(), script)
-        if os.path.isfile(local_script):
-            script = local_script
+        script = self._gafferScript
+
+        if not os.path.isfile(script):
+            self.FailRender("Could not find path mapped Gaffer script {}".format(script))
 
         ignoreErrors = self.GetPluginInfoEntryWithDefault("IgnoreScriptLoadErrors", "False")
         nodes = self.GetPluginInfoEntryWithDefault("Nodes", "")
