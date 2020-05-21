@@ -57,6 +57,15 @@ Label=Gaffer 0.54.2.1 Render Executable
 Default=%HOME%/gaffer_0.55.2.1;~/gaffer_0.55.2.1
 Description=The path to the Gaffer 0.55.2.1 executable (gaffer.bat on Windows) file used for executing. Enter alternative paths on separate lines.
 
+[Executable0_57_3_0]
+Type=multilinemultifilename
+Category=Gaffer 0.57.3.0 Executables
+CategoryOrder=0
+CategoryIndex=0
+Label=Gaffer 0.57.3.0 Render Executable
+Default=%HOME%/gaffer_0.57.3.0;~/gaffer_0.57.3.0
+Description=The path to the Gaffer 0.57.3.0 executable (gaffer.bat on Windows) file used for executing. Enter alternative paths on separate lines.
+
 [EnablePathMapping]
 Type=boolean
 Category=Path Mapping (For Mixed Farms)
