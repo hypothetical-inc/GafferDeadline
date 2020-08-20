@@ -35,11 +35,14 @@
 ##########################################################################
 
 import warnings
+import string
 
 import IECore
 
 import Gaffer
 import GafferUI
+import GafferUI._StyleSheet
+
 
 import Qt
 from Qt import QtCore
@@ -60,6 +63,29 @@ class ListWidget(GafferUI.Widget):
         self._qtWidget().setAlternatingRowColors(True)
         self._qtWidget().setUniformItemSizes(True)
         self._qtWidget().setResizeMode(QtWidgets.QListView.Adjust)
+
+        # Match Gaffer's QTreeView style
+        listWidgetStyleSheet = string.Template(
+            """
+
+            *[gafferClass="GafferDeadlineUI.ListWidget"] {
+                border-radius: $widgetCornerRadius;
+                background-color: $backgroundRaised;
+                border: 1px solid $backgroundHighlight;
+                border-right-color: $backgroundLowlight;
+                border-bottom-color: $backgroundLowlight;
+            }
+            *[gafferClass="GafferDeadlineUI.ListWidget"]::item::alternate {
+                background-color: $backgroundRaisedAlt;
+            }
+            [gafferClass="GafferDeadlineUI.ListWidget"]::item:selected {
+                background-color: $brightColor;
+            }
+            """
+        ).substitute(GafferUI._StyleSheet.substitutions)
+        listWidgetStyleSheet += GafferUI._StyleSheet._styleSheet
+        self._qtWidget().setStyleSheet(listWidgetStyleSheet)
+
         if allowMultipleSelection:
             self._qtWidget().setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
