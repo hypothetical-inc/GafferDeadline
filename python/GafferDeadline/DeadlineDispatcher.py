@@ -211,12 +211,21 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         "LimitGroups": deadline_plug["limits"].getValue(),
                         "OnJobComplete": deadline_plug["onJobComplete"].getValue(),
                         "InitialStatus": initial_status,
-                        "EnvironmentKeyValue0": "IECORE_LOG_LEVEL=INFO",   # GafferVRay uses INFO log level for progress output
                         }
                         
             auxFiles = deadline_job.getAuxFiles()
             auxFiles += deadline_plug["auxFiles"].getValue()
             deadline_job.setAuxFiles(auxFiles)
+
+            environmentVariables = IECore.CompoundData()
+            deadline_plug["environmentVariables"].fillCompoundData(environmentVariables)
+            for name, value in environmentVariables.items():
+                deadline_job.appendEnvironmentVariable(name, str(value))
+
+            deadlineSettings = IECore.CompoundData()
+            deadline_plug["deadlineSettings"].fillCompoundData(deadlineSettings)
+            for name, value in deadlineSettings.items():
+                deadline_job.appendDeadlineSetting(name, value)
 
             """ Dependencies are stored with a reference to the Deadline job since job IDs weren't assigned
             when the task tree was walked. Now that parent jobs have been submitted and have IDs,
@@ -338,8 +347,10 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     contextArgs.extend(["\"-{}\"".format(entry), "\"{}\"".format(repr(deadline_job.getContext()[entry]))])
             if contextArgs:
                 plugin_info["Context"] = " ".join(contextArgs)
+
             deadline_job.setJobProperties(job_info)
             deadline_job.setPluginProperties(plugin_info)
+
             job_file_path = os.path.join(os.path.split(dispatch_data["scriptFile"])[0], gaffer_node.relativeName(dispatch_data["scriptNode"]) + ".job")
             plugin_file_path = os.path.join(os.path.split(dispatch_data["scriptFile"])[0], gaffer_node.relativeName(dispatch_data["scriptNode"]) + ".plugin")
 
@@ -380,6 +391,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         parent_plug["deadline"]["dependencyMode"] = Gaffer.StringPlug()
         parent_plug["deadline"]["dependencyMode"].setValue("Auto")
         parent_plug["deadline"]["auxFiles"] = Gaffer.StringVectorDataPlug(defaultValue=IECore.StringVectorData())
+        parent_plug["deadline"]["deadlineSettings"] = Gaffer.CompoundDataPlug()
+        parent_plug["deadline"]["environmentVariables"] = Gaffer.CompoundDataPlug()
+        parent_plug["deadline"]["environmentVariables"].addMember("IECORE_LOG_LEVEL", "INFO", True)
 
 IECore.registerRunTimeTyped(DeadlineDispatcher, typeName="GafferDeadline::DeadlineDispatcher")
 

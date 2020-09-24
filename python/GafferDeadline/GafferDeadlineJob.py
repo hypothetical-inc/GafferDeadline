@@ -57,7 +57,7 @@ class GafferDeadlineJob(object):
         frame_to_frame = 2
         scripted = 3
 
-    def __init__(self, job_properties={}, plugin_properties={}, aux_files=[], gaffer_node=None, job_context={}, chunk_size=1):
+    def __init__(self, job_properties={}, plugin_properties={}, aux_files=[], deadlineSettings={}, environmentVariables={}, gaffer_node=None, job_context={}, chunk_size=1):
         self._dependency_type = None
         self._frame_dependency_offset_start = 0
         self._frame_dependency_offset_end = 0
@@ -67,7 +67,9 @@ class GafferDeadlineJob(object):
         self.setAuxFiles(aux_files)
         self.setGafferNode(gaffer_node)
         self.setContext(job_context)
-
+        
+        self._deadlineSettings = deadlineSettings
+        self._environmentVariables = environmentVariables
         self._job_id = None
         self._parent_jobs = []
         self._tasks = []
@@ -138,6 +140,12 @@ class GafferDeadlineJob(object):
                 return job
 
         return None
+
+    def appendEnvironmentVariable(self, name, value):
+        self._environmentVariables[name] = value
+
+    def appendDeadlineSetting(self, name, value):
+        self._deadlineSettings[name] = value
 
     # Separate batch_frames out so it can be unit tested. Gaffer does not allow creating _TaskBatch objects
     def addBatch(self, new_batch, batch_frames):
@@ -219,7 +227,12 @@ class GafferDeadlineJob(object):
             job_file = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
         else:
             job_file = open(job_file_path, mode="w")
+
+        self._job_properties.update(self._deadlineSettings)
         job_lines = ["{}={}".format(k, self._job_properties[k]) for k in self._job_properties.keys()]
+        environmentVariableCounter = 0
+        for v in self._environmentVariables.keys():
+            job_lines.append("EnvironmentKeyValue{}={}={}".format(environmentVariableCounter, v, self._environmentVariables[v]))
         job_file.write("\n".join(job_lines))
         job_file.close()
 

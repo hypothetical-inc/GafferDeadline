@@ -230,6 +230,23 @@ Gaffer.Metadata.registerNode(
             """,
             "plugValueWidget:type", "GafferUI.FileSystemPathVectorDataPlugValueWidget",
         ],
+        "dispatcher.deadline.deadlineSettings": [
+            "description",
+            """
+            A list of additional Deadline settings for the dispatched job. These variables are set after
+            all other settings. Adding a variable here of "Name", for example, will override the default
+            job name. A list of available settings can be found on the Manual Submission page of the
+            Deadline documentation.
+            """,
+            "layout:section", "Deadline Settings",
+        ],
+        "dispatcher.deadline.environmentVariables": [
+            "description",
+            """
+            A list of additional environment variables for Deadline to set before starting the job.
+            """,
+            "layout:section", "Environment Variables",
+        ],
     }
 
 )
