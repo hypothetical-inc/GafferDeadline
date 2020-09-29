@@ -233,6 +233,11 @@ class GafferDeadlineJob(object):
         environmentVariableCounter = 0
         for v in self._environmentVariables.keys():
             job_lines.append("EnvironmentKeyValue{}={}={}".format(environmentVariableCounter, v, self._environmentVariables[v]))
+            environmentVariableCounter += 1
+        # Default to IECORE_LOG_LEVEL=INFO
+        if "IECORE_LOG_LEVEL" not in self._environmentVariables:
+            job_lines.append("EnvironmentKeyValue{}=IECORE_LOG_LEVEL=INFO".format(environmentVariableCounter))
+
         job_file.write("\n".join(job_lines))
         job_file.close()
 

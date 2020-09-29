@@ -393,7 +393,6 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         parent_plug["deadline"]["auxFiles"] = Gaffer.StringVectorDataPlug(defaultValue=IECore.StringVectorData())
         parent_plug["deadline"]["deadlineSettings"] = Gaffer.CompoundDataPlug()
         parent_plug["deadline"]["environmentVariables"] = Gaffer.CompoundDataPlug()
-        parent_plug["deadline"]["environmentVariables"].addMember("IECORE_LOG_LEVEL", "INFO", True)
 
 IECore.registerRunTimeTyped(DeadlineDispatcher, typeName="GafferDeadline::DeadlineDispatcher")
 
