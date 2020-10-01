@@ -95,7 +95,7 @@ class GafferDeadlineJob(object):
 
     def setPluginProperties(self, new_properties):
         assert(type(new_properties) == dict)
-        self._plugin_properties = new_properties
+        self._plugin_properties = new_properties.copy()
 
     def getPluginProperties(self):
         return self._plugin_properties
