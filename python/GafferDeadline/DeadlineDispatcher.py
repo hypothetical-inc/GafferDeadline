@@ -89,6 +89,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         To be compatible with Deadline's ExtraInfoKeyValue system, dependencies are reformatted at submission as
         task:job_dependency_id=task_dependency_number
         '''
+        self._deadline_jobs = []
         IECore.Log.info("Beginning Deadline submission")
         dispatch_data = {}
         dispatch_data["scriptNode"] = root_batch.preTasks()[0].node().scriptNode()

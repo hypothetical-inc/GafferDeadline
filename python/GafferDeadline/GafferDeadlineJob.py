@@ -68,8 +68,8 @@ class GafferDeadlineJob(object):
         self.setGafferNode(gaffer_node)
         self.setContext(job_context)
         
-        self._deadlineSettings = deadlineSettings
-        self._environmentVariables = environmentVariables
+        self._deadlineSettings = deadlineSettings.copy()
+        self._environmentVariables = environmentVariables.copy()
         self._job_id = None
         self._parent_jobs = []
         self._tasks = []
