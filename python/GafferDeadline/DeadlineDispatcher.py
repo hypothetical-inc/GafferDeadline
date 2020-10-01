@@ -365,7 +365,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
             return deadline_job.getJobID()
         else:
-            print "oh no!"
+            IECore.Log.error("GafferDeadline", "Failed to acquire Deadline plug")
             return None
 
     @staticmethod
