@@ -193,7 +193,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 else:
                     frame_string += ",{}-{}".format(t.getStartFrame(), t.getEndFrame())
             
-            context = Gaffer.Context.current()
+            context = deadline_job.getContext()
             job_info = {"Name": gaffer_node.relativeName(dispatch_data["scriptNode"]),
                         "Frames": frame_string,
                         "ChunkSize": chunk_size,
