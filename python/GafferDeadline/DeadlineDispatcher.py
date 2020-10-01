@@ -192,40 +192,42 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 else:
                     frame_string += ",{}-{}".format(t.getStartFrame(), t.getEndFrame())
             
+            context = Gaffer.Context.current()
             job_info = {"Name": gaffer_node.relativeName(dispatch_data["scriptNode"]),
                         "Frames": frame_string,
                         "ChunkSize": chunk_size,
                         "Plugin": "Gaffer",
                         "BatchName": dispatch_data["deadlineBatch"],
-                        "Comment": deadline_plug["comment"].getValue(),
-                        "Department": deadline_plug["department"].getValue(),
-                        "Pool": deadline_plug["pool"].getValue(),
-                        "SecondaryPool": deadline_plug["secondaryPool"].getValue(),
-                        "Group": deadline_plug["group"].getValue(),
+                        "Comment": context.substitute(deadline_plug["comment"].getValue()),
+                        "Department": context.substitute(deadline_plug["department"].getValue()),
+                        "Pool": context.substitute(deadline_plug["pool"].getValue()),
+                        "SecondaryPool": context.substitute(deadline_plug["secondaryPool"].getValue()),
+                        "Group": context.substitute(deadline_plug["group"].getValue()),
                         "Priority": deadline_plug["priority"].getValue(),
                         "TaskTimeoutMinutes": int(deadline_plug["taskTimeout"].getValue()),
                         "EnableAutoTimeout": deadline_plug["enableAutoTimeout"].getValue(),
                         "ConcurrentTasks": deadline_plug["concurrentTasks"].getValue(),
                         "MachineLimit": deadline_plug["machineLimit"].getValue(),
-                        machine_list_type: deadline_plug["machineList"].getValue(),
-                        "LimitGroups": deadline_plug["limits"].getValue(),
+                        machine_list_type: context.substitute(deadline_plug["machineList"].getValue()),
+                        "LimitGroups": context.substitute(deadline_plug["limits"].getValue()),
                         "OnJobComplete": deadline_plug["onJobComplete"].getValue(),
                         "InitialStatus": initial_status,
                         }
                         
-            auxFiles = deadline_job.getAuxFiles()
-            auxFiles += deadline_plug["auxFiles"].getValue()
+            auxFiles = deadline_job.getAuxFiles()   # this will already have substitutions included
+            auxFiles += [context.substitute(f) for f in deadline_plug["auxFiles"].getValue()]
             deadline_job.setAuxFiles(auxFiles)
 
             environmentVariables = IECore.CompoundData()
+
             deadline_plug["environmentVariables"].fillCompoundData(environmentVariables)
             for name, value in environmentVariables.items():
-                deadline_job.appendEnvironmentVariable(name, str(value))
+                deadline_job.appendEnvironmentVariable(name, context.substitute(str(value)))
 
             deadlineSettings = IECore.CompoundData()
             deadline_plug["deadlineSettings"].fillCompoundData(deadlineSettings)
             for name, value in deadlineSettings.items():
-                deadline_job.appendDeadlineSetting(name, value)
+                deadline_job.appendDeadlineSetting(name, context.substitute(str(value)))
 
             """ Dependencies are stored with a reference to the Deadline job since job IDs weren't assigned
             when the task tree was walked. Now that parent jobs have been submitted and have IDs,
