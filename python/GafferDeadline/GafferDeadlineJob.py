@@ -68,8 +68,8 @@ class GafferDeadlineJob(object):
         self.setGafferNode(gaffer_node)
         self.setContext(job_context)
         
-        self._deadlineSettings = deadlineSettings
-        self._environmentVariables = environmentVariables
+        self._deadlineSettings = deadlineSettings.copy()
+        self._environmentVariables = environmentVariables.copy()
         self._job_id = None
         self._parent_jobs = []
         self._tasks = []
@@ -95,7 +95,7 @@ class GafferDeadlineJob(object):
 
     def setPluginProperties(self, new_properties):
         assert(type(new_properties) == dict)
-        self._plugin_properties = new_properties
+        self._plugin_properties = new_properties.copy()
 
     def getPluginProperties(self):
         return self._plugin_properties
