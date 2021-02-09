@@ -113,7 +113,7 @@ class GafferDeadlineJob(object):
 
     def setGafferNode(self, new_node):
         if not issubclass(type(new_node), GafferDispatch.TaskNode) and new_node is not None:
-            raise (ValueError, "Gaffer node must be a GafferDispatch.TaskNode or None")
+            raise ValueError("Gaffer node must be a GafferDispatch.TaskNode or None")
         self._gaffer_node = new_node
 
     def getGafferNode(self):
@@ -127,7 +127,7 @@ class GafferDeadlineJob(object):
 
     def addParentJob(self, parent_job):
         if type(parent_job) != GafferDeadlineJob:
-            raise (ValueError, "Parent job must be a GafferDeadlineJob")
+            raise ValueError("Parent job must be a GafferDeadlineJob")
         if parent_job not in self._parent_jobs:
             self._parent_jobs.append(parent_job)
 
@@ -254,7 +254,7 @@ class GafferDeadlineJob(object):
         IECore.Log.debug("Submission results:", result)
 
         if result[0] is None:
-            raise(RuntimeError, "Deadline submission failed: \n{}".format(result[1]))
+            raise RuntimeError("Deadline submission failed: \n{}".format(result[1]))
         self._job_id = result[0]
 
         if job_file is None:

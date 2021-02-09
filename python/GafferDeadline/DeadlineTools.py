@@ -43,7 +43,7 @@ import IECore
 
 def runDeadlineCommand(arguments, hideWindow=True):
     if "DEADLINE_PATH" not in os.environ:
-        raise(RuntimeError, "DEADLINE_PATH must be set to the Deadline executable path")
+        raise RuntimeError("DEADLINE_PATH must be set to the Deadline executable path")
     executable_suffix = ".exe" if os.name == "nt" else ""
     deadline_command = os.path.join(os.environ['DEADLINE_PATH'], "deadlinecommand" + executable_suffix)
 
@@ -54,7 +54,7 @@ def runDeadlineCommand(arguments, hideWindow=True):
     output, err = p.communicate()
 
     if err:
-        raise(RuntimeError, "Error running Deadline command {}: {}".format(" ".join(arguments), output))
+        raise RuntimeError("Error running Deadline command {}: {}".format(" ".join(arguments), output))
 
     return output
 
