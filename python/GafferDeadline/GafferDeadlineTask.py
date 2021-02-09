@@ -71,9 +71,9 @@ class GafferDeadlineTask(object):
 
     def setFrameRange(self, start_frame, end_frame):
         if end_frame < start_frame:
-            raise (ValueError, "End frame must be greater than start frame.")
+            raise ValueError("End frame must be greater than start frame.")
         if int(start_frame) != start_frame or int(end_frame) != end_frame:
-            raise (ValueError, "Start and end frames must be integers.")
+            raise ValueError("Start and end frames must be integers.")
         self._start_frame = int(start_frame)
         self._end_frame = int(end_frame)
 
@@ -81,15 +81,15 @@ class GafferDeadlineTask(object):
         frames_sequential = True
         if len(frame_list) > 0:
             if int(frame_list[0]) != frame_list[0]:
-                raise(ValueError, "Frame numbers must be integers.")
+                raise ValueError("Frame numbers must be integers.")
             for i in range(1, len(frame_list)-1):
                 if int(frame_list[i]) != frame_list[i]:
-                    raise(ValueError, "Frame numbers must be integers.")
+                    raise ValueError("Frame numbers must be integers.")
                 if frame_list[i] - frame_list[i-1] != 1:
                     frames_sequential = False
 
             if not frames_sequential:
-                raise (ValueError, "Frame list must be sequential.")
+                raise ValueError("Frame list must be sequential.")
             self._start_frame = int(frame_list[0])
             self._end_frame = int(frame_list[len(frame_list) - 1])
         else:
@@ -98,10 +98,10 @@ class GafferDeadlineTask(object):
 
     def setStartFrame(self, start_frame):
         if self._end_frame is not None and start_frame is not None and start_frame > self._end_frame:
-            raise(ValueError, "Start frame must be less than end frame.")
+            raise ValueError("Start frame must be less than end frame.")
         if start_frame is not None:
             if int(start_frame) != start_frame:
-                raise(ValueError, "Frame numbers must be integers.")
+                raise ValueError("Frame numbers must be integers.")
             self._start_frame = int(start_frame)
         else:
             self._start_frame = None
@@ -111,10 +111,10 @@ class GafferDeadlineTask(object):
 
     def setEndFrame(self, end_frame):
         if self._start_frame is not None and end_frame is not None and end_frame < self._start_frame:
-            raise(ValueError, "End frame must be greater than start frame.")
+            raise ValueError("End frame must be greater than start frame.")
         if end_frame is not None:
             if int(end_frame) != end_frame:
-                raise(ValueError, "Frame numbers must be integers.")
+                raise ValueError("Frame numbers must be integers.")
             self._end_frame = int(end_frame)
         else:
             self._end_frame = None

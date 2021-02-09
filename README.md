@@ -13,7 +13,7 @@ It is tested on Linux and the beta Windows Gaffer build. OS X compatibility is u
 1. Extract the archive / clone the repository to a directory accessible to Gaffer.
 2. Move the "Gaffer" subdirectory to your Deadline repository "custom/plugins" directory. This is the Deadline plugin that will run Gaffer jobs on your render farm.
 3. Add the directory where you extracted / cloned the repository to the GAFFER_EXTENSION_PATHS environment variable before running Gaffer.
-4. Move the gaffer_batch_dependency.py file to a location where all of your Deadline Slaves and Pulse machines can access the file. Deadline will run that script according to your repository settings to check for tasks that can be released from pending status based on their dependencies being completed.
+4. Move the gaffer_batch_dependency.py file to a location where all of your Deadline Workers and Pulse machines can access the file. Deadline will run that script according to your repository settings to check for tasks that can be released from pending status based on their dependencies being completed.
 If you have multiple operating systems in your Deadline installation, you will likely need to set up path mapping for machines to locate the script.
 5. Set the DEADLINE_DEPENDENCY_SCRIPT_PATH environment variable to the full path (including filename) where you saved the gaffer_batch_dependency.py file before running Gaffer. GafferDeadline dispatcher uses this variable as the location for the dependency script when submitting jobs to Deadline.
 6. Ensure that the DEADLINE_PATH environment variable is set to the directory where the "deadlinecommand" executable lives. This is typically set system-wide when you install the Deadline Client. GafferDeadline uses this environment variable to locate "deadlinecommand" for interacting with your Deadline repository.
@@ -33,6 +33,14 @@ When you are ready to submit the node(s) press the node's "Execute" button and s
 You need a Deadline Client installed and connected to your repository on the machines you will be running GafferDeadline from. GafferDeadline uses the Deadline installation on the host machine, similar to other integrated submitters Deadline includes for Nuke, Houdini, etc.
 
 The Deadline settings in Gaffer include an override for the dependency method for that node. This override controls downstream Task Nodes that depend on the node on which it was set. Most of the time it should be left on Auto to let the dispatcher determine the most efficient method. If you know a node needs to be handled in a particular way, you can force its dependency method with the override plug. Usually the "Full Job" setting will be the safest but least flexible because downstream tasks will wait for all frames of that job to complete before being released.
+
+### Auxiliary Files ###
+GafferDeadline can submit auxiliary files along with the dispatched job at submission time. These files will be uploaded to the Deadline repository and downloaded to each Deadline Worker when it dequeues a task.
+
+The GafferDeadline Deadline plugin sets an environment variable called AUXFILEDIRECTORY to the local directory on the Deadline Worker where the files are downloaded. This environment variable can then be used in any of Gaffer's usual string substitutions to point files to the auxiliary file location.
+
+### Render Threads and GPU Affinity ###
+GafferDeadline sets the environment variable CPUTHREAD the Deadline Worker's render thread. GafferDeadline also sets the GPUAFFINITY environment variable to a comma-separated list of GPU Threads configured for that Worker. More information on setting up GPU Affinity can be found at https://www.awsthinkbox.com/blog/cpu-and-gpu-affinity-in-deadline.
 
 ## Running Unit Tests ##
 You don't need to run the unit tests for normal use of GafferDeadline, but if you want to make customizations it is recommended that you add unit tests as appropriate and run the existing tests to ensure compatibility.
