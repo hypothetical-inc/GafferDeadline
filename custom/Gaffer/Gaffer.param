@@ -48,6 +48,7 @@ CategoryIndex=0
 Label=Gaffer 0.54.1.0 Render Executable
 Default=%HOME%/gaffer_0.54.1.0;~/gaffer_0.54.1.0
 Description=The path to the Gaffer 0.54.1.0 executable (gaffer.bat on Windows) file used for executing. Enter alternative paths on separate lines.
+
 [Executable0_55_2_0]
 Type=multilinemultifilename
 Category=Gaffer 0.55.2.1 Executables
@@ -65,6 +66,24 @@ CategoryIndex=0
 Label=Gaffer 0.57.3.0 Render Executable
 Default=%HOME%/gaffer_0.57.3.0;~/gaffer_0.57.3.0
 Description=The path to the Gaffer 0.57.3.0 executable (gaffer.bat on Windows) file used for executing. Enter alternative paths on separate lines.
+
+[Executable0_58_3_2]
+Type=multilinemultifilename
+Category=Gaffer 0.58.3.2 Executables
+CategoryOrder=0
+CategoryIndex=0
+Label=Gaffer 0.58.3.2 Render Executable
+Default=%HOME%/gaffer_0.58.3.2;~/gaffer_0.58.3.2
+Description=The path to the Gaffer 0.58.3.2 executable (gaffer.bat on Windows) file used for executing. Enter alternative paths on separate lines.
+
+[Executable0_59_0_0]
+Type=multilinemultifilename
+Category=Gaffer 0.59.0.0 Executables
+CategoryOrder=0
+CategoryIndex=0
+Label=Gaffer 0.59.0.0 Render Executable
+Default=%HOME%/gaffer_0.59.0.0;~/gaffer_0.59.0.0
+Description=The path to the Gaffer 0.59.0.0 executable (gaffer.bat on Windows) file used for executing. Enter alternative paths on separate lines.
 
 [EnablePathMapping]
 Type=boolean
