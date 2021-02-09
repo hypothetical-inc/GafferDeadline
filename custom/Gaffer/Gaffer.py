@@ -105,6 +105,9 @@ class GafferPlugin(DeadlinePlugin):
         self.AddStdoutHandlerCallback( ".*Frame took.*" ).HandleCallback += self.HandleGafferVRayStdoutClosing
 
         self.SetEnvironmentVariable("AUXFILEDIRECTORY", self.GetJobsDataDirectory())
+        if self.OverrideGpuAffinity():
+            self.SetEnvironmentVariable("GPUAFFINITY", ",".join([str(i) for i in self.GpuAffinity()]))
+        self.SetEnvironmentVariable("CPUTHREAD", str(self.GetThreadNumber()))
 
     def PreRenderTasks(self):
         self.LogInfo("Performing path mapping")
