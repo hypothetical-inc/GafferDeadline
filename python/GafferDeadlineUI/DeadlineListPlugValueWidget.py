@@ -47,7 +47,10 @@ class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
     def __init__(self, plug, listString="", **kw):
         assert(type(listString) == str)
 
-        self.__row = GafferUI.ListContainer(GafferUI.ListContainer.Orientation.Horizontal, spacing=4)
+        self.__row = GafferUI.ListContainer(
+            GafferUI.ListContainer.Orientation.Horizontal,
+            spacing=4
+        )
         GafferUI.PlugValueWidget.__init__(self, self.__row, plug, **kw)
 
         self.__listString = listString
@@ -57,10 +60,14 @@ class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
         self.__row.append(listWidget)
 
         button = GafferUI.Button("...", hasFrame=True)
-        self.__buttonClickedConnection = button.clickedSignal().connect(Gaffer.WeakMethod(self.__buttonClicked))
+        self.__buttonClickedConnection = button.clickedSignal().connect(
+            Gaffer.WeakMethod(self.__buttonClicked)
+        )
         self.__row.append(button)
 
-        self.__editingFinishedConnection = listWidget.editingFinishedSignal().connect(Gaffer.WeakMethod(self.__setPlugValue))
+        self.__editingFinishedConnection = listWidget.editingFinishedSignal().connect(
+            Gaffer.WeakMethod(self.__setPlugValue)
+        )
 
         self._updateFromPlug()
 
@@ -71,7 +78,10 @@ class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
         # Get info from the farm.
         # Keep this in the button code to prevent it from being called repeatedly by Gaffer with
         # every node with a Deadline submitter attached
-        multiSelect = Gaffer.Metadata.value(self.getPlug(), "deadlineListPlugValueWidget:multiSelect")
+        multiSelect = Gaffer.Metadata.value(
+            self.getPlug(),
+            "deadlineListPlugValueWidget:multiSelect"
+        )
         if Gaffer.Metadata.value(self.getPlug(), "deadlineListPlugValueWidget:type") == "pools":
             deadlineListString = ",".join(DeadlineTools.getPools())
             dialogTitle = "Select Pools"
@@ -87,7 +97,12 @@ class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
 
         optionListString = deadlineListString.split(",")
         selectionString = self.getPlug().getValue().split(",")
-        dialogue = GafferDeadlineUI.ListSelectionDialog(optionListString, selectionString, dialogTitle, allowMultipleSelection=multiSelect)
+        dialogue = GafferDeadlineUI.ListSelectionDialog(
+            optionListString,
+            selectionString,
+            dialogTitle,
+            allowMultipleSelection=multiSelect
+        )
         listString = dialogue.waitForSelection(parentWindow=self.ancestor(GafferUI.Window))
 
         if listString is not None:

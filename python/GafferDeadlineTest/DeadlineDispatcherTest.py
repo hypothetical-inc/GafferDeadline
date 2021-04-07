@@ -49,7 +49,9 @@ import GafferDeadline
 class DeadlineDispatcherTest(GafferTest.TestCase):
     def __dispatcher(self):
         dispatcher = GafferDeadline.DeadlineDispatcher()
-        dispatcher["jobsDirectory"].setValue(os.path.join(self.temporaryDirectory(), "testJobDirectory").replace("\\", "\\\\"))
+        dispatcher["jobsDirectory"].setValue(
+            os.path.join(self.temporaryDirectory(), "testJobDirectory").replace("\\", "\\\\")
+        )
 
         return dispatcher
 
@@ -80,7 +82,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f)
 
         dispatcher = self.__dispatcher()
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             dispatcher.dispatch([s["n"]])
 
         self.assertEqual(len(spooled), 1)
@@ -91,7 +96,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["n"] = GafferDispatchTest.LoggingTaskNode()
 
         dispatcher = self.__dispatcher()
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             dispatcher.dispatch([s["n"]])
 
         self.assertTrue(os.path.isfile(os.path.join(dispatcher.jobDirectory(), "n.job")))
@@ -100,14 +108,20 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
     def testTaskAttributes(self):
         s = Gaffer.ScriptNode()
         s["n"] = GafferDispatchTest.LoggingTaskNode()
-        s["n"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n"]["dispatcher"]["batchSize"].setValue(10)
 
         dispatcher = self.__dispatcher()
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-10")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n"]], dispatcher)
         self.assertEqual(len(jobs[0].getParentJobs()), 0)
         self.assertEqual(len(jobs[0].getTasks()), 1)
@@ -115,14 +129,20 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
     def testMultipleBatches(self):
         s = Gaffer.ScriptNode()
         s["n"] = GafferDispatchTest.LoggingTaskNode()
-        s["n"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n"]["dispatcher"]["batchSize"].setValue(1)
 
         dispatcher = self.__dispatcher()
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-10")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n"]], dispatcher)
 
         self.assertEqual(len(jobs), 1)
@@ -132,14 +152,20 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
     def testSingleBatch(self):
         s = Gaffer.ScriptNode()
         s["n"] = GafferDispatchTest.LoggingTaskNode()
-        s["n"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n"]["dispatcher"]["batchSize"].setValue(10)
 
         dispatcher = self.__dispatcher()
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-10")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n"]], dispatcher)
 
         self.assertEqual(len(jobs), 1)
@@ -148,14 +174,20 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
     def testCollapseIdenticalFrames(self):
         s = Gaffer.ScriptNode()
         s["n"] = GafferDispatch.PythonCommand()
-        s["n"]["command"] = Gaffer.StringPlug(defaultValue="print(\"Hello\")", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n"]["command"] = Gaffer.StringPlug(
+            defaultValue="print(\"Hello\")",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n"]["dispatcher"]["batchSize"].setValue(1)
 
         dispatcher = self.__dispatcher()
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-10")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n"]], dispatcher)
 
         self.assertEqual(len(jobs), 1)
@@ -172,14 +204,23 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["n3"] = GafferDispatchTest.LoggingTaskNode()
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"], s["n3"]])
 
         self.assertEqual(len(jobs), 3)
-        dependency_count = {"n1":0, "n2": 1, "n3": 0}
-        self.assertEqual(len(jobs[0].getParentJobs()), dependency_count[jobs[0].getJobProperties()["Name"]])
-        self.assertEqual(len(jobs[1].getParentJobs()), dependency_count[jobs[1].getJobProperties()["Name"]])
-        self.assertEqual(len(jobs[2].getParentJobs()), dependency_count[jobs[2].getJobProperties()["Name"]])
+        dependency_count = {"n1": 0, "n2": 1, "n3": 0}
+        self.assertEqual(
+            len(jobs[0].getParentJobs()), dependency_count[jobs[0].getJobProperties()["Name"]]
+        )
+        self.assertEqual(
+            len(jobs[1].getParentJobs()), dependency_count[jobs[1].getJobProperties()["Name"]]
+        )
+        self.assertEqual(
+            len(jobs[2].getParentJobs()), dependency_count[jobs[2].getJobProperties()["Name"]]
+        )
 
     def testSharedPreTasks(self):
         #   n1
@@ -199,7 +240,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["n2"]["preTasks"][0].setInput(s["i1"]["task"])
         s["n2"]["preTasks"][1].setInput(s["i2"]["task"])
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]])
 
         self.assertEqual(len(jobs), 4)
@@ -215,11 +259,15 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
 
@@ -227,7 +275,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 2)
@@ -238,7 +289,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
 
     def testOverrideNone(self):
         #   n1
@@ -248,11 +302,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
         s["n2"]["dispatcher"]["deadline"]["dependencyMode"].setValue("None")
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
@@ -261,7 +321,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 2)
@@ -269,11 +332,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 8)
                 self.assertEqual(len(j.getTasks()), 4)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
 
     def testOverrideJob(self):
         #   n1
@@ -283,11 +352,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
         s["n2"]["dispatcher"]["deadline"]["dependencyMode"].setValue("Job")
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
@@ -296,7 +371,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 2)
@@ -304,11 +382,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 8)
                 self.assertEqual(len(j.getTasks()), 4)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
 
     def testOverrideJob(self):
         #   n1
@@ -318,11 +402,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
         s["n2"]["dispatcher"]["deadline"]["dependencyMode"].setValue("Frame")
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
@@ -331,7 +421,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 2)
@@ -339,11 +432,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 8)
                 self.assertEqual(len(j.getTasks()), 4)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
 
     def testOverrideScript(self):
         #   n1
@@ -353,11 +452,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
         s["n2"]["dispatcher"]["deadline"]["dependencyMode"].setValue("Script")
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
@@ -366,7 +471,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 2)
@@ -374,17 +482,26 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 8)
                 self.assertEqual(len(j.getTasks()), 4)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
 
     def testSequence(self):
         s = Gaffer.ScriptNode()
 
         s["n"] = GafferDispatch.PythonCommand()
-        s["n"]["command"] = Gaffer.StringPlug(defaultValue="print(context.getFrame())", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n"]["command"] = Gaffer.StringPlug(
+            defaultValue="print(context.getFrame())",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n"]["sequence"].setValue(True)
         s["n"]["dispatcher"]["batchSize"].setValue(1)
 
@@ -392,7 +509,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n"]], dispatcher)
 
         self.assertEqual(len(jobs), 1)
@@ -411,11 +531,17 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
 
         s["d1"] = Gaffer.Dot()
@@ -427,7 +553,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 2)
@@ -438,7 +567,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                )
 
     def testDependencies(self):
         #   n1
@@ -450,21 +582,33 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["i1"] = GafferDispatchTest.LoggingTaskNode()
-        s["i1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["i1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["i1"]["dispatcher"]["batchSize"].setValue(25)
         s["i1"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["i2"] = GafferDispatchTest.LoggingTaskNode()
-        s["i2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["i2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["i2"]["dispatcher"]["batchSize"].setValue(1)
         s["i2"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(13)
         s["n2"]["preTasks"][0].setInput(s["i1"]["task"])
         s["n2"]["preTasks"][1].setInput(s["i2"]["task"])
@@ -473,7 +617,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 4)
@@ -504,20 +651,32 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(10)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(25)
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["n3"] = GafferDispatchTest.LoggingTaskNode()
-        s["n3"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n3"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n3"]["dispatcher"]["batchSize"].setValue(1)
 
         s["n4"] = GafferDispatchTest.LoggingTaskNode()
-        s["n4"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n4"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n4"]["dispatcher"]["batchSize"].setValue(1)
 
         s["t1"] = GafferDispatch.TaskList()
@@ -534,7 +693,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["t2"]], dispatcher)
 
         self.assertEqual(len(jobs), 6)
@@ -571,21 +733,33 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(1)
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(15)
         s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["n3"] = GafferDispatchTest.LoggingTaskNode()
-        s["n3"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n3"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n3"]["dispatcher"]["batchSize"].setValue(50)
         s["n3"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["n4"] = GafferDispatchTest.LoggingTaskNode()
-        s["n4"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n4"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n4"]["dispatcher"]["batchSize"].setValue(15)
         s["n4"]["preTasks"][0].setInput(s["n2"]["task"])
 
@@ -593,13 +767,15 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["t1"]["dispatcher"]["batchSize"].setValue(10)
         s["t1"]["preTasks"][0].setInput(s["n4"]["task"])
         s["t1"]["preTasks"][1].setInput(s["n3"]["task"])
-        
 
         dispatcher = self.__dispatcher()
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["t1"]], dispatcher)
 
         self.assertEqual(len(jobs), 5)
@@ -607,33 +783,48 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 4)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 50)
             elif j.getJobProperties()["Name"] == "n3":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 1)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                )
             elif j.getJobProperties()["Name"] == "n4":
                 self.assertEqual(len(j.getDependencies()), 4)
                 self.assertEqual(len(j.getTasks()), 4)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                )
             elif j.getJobProperties()["Name"] == "t1":
                 self.assertEqual(len(j.getDependencies()), 12)
                 self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                )
 
     def testFrameMask(self):
         #   n1
         #   |
         #   m1
         #   |
-        #   n2 
+        #   n2
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(1)
 
         s["m1"] = GafferDispatch.FrameMask()
@@ -642,7 +833,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["m1"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(1)
         s["n2"]["preTasks"][0].setInput(s["m1"]["task"])
 
@@ -650,7 +844,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 3)
@@ -658,7 +855,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 50)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
@@ -668,27 +868,58 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         #   |
         #   c1 ---- e1
         #   |
-        #   n2 
+        #   n2
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(1)
 
         s["c1"] = GafferDispatch.TaskContextVariables()
-        s["c1"]["variables"].addChild( Gaffer.CompoundDataPlug.MemberPlug( "member1", flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"].addChild( Gaffer.StringPlug( "name", defaultValue = '', flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"].addChild( Gaffer.FloatPlug( "value", defaultValue = 0.0, flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"].addChild( Gaffer.BoolPlug( "enabled", defaultValue = True, flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"]["name"].setValue( 'frame' )
+        s["c1"]["variables"].addChild(
+            Gaffer.CompoundDataPlug.MemberPlug(
+                "member1", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"].addChild(
+            Gaffer.StringPlug(
+                "name",
+                defaultValue='',
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"].addChild(
+            Gaffer.FloatPlug(
+                "value",
+                defaultValue=0.0,
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"].addChild(
+            Gaffer.BoolPlug(
+                "enabled",
+                defaultValue=True,
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"]["name"].setValue('frame')
         s["c1"]["dispatcher"]["batchSize"].setValue(1)
         s["c1"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["e"] = Gaffer.Expression()
-        s["e"].setExpression( 'parent["c1"]["variables"]["member1"]["value"] = context.getFrame() + 100', "python")
+        s["e"].setExpression(
+            'parent["c1"]["variables"]["member1"]["value"] = context.getFrame() + 100',
+            "python"
+        )
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(1)
         s["n2"]["preTasks"][0].setInput(s["c1"]["task"])
 
@@ -696,7 +927,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 3)
@@ -704,39 +938,74 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 50)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                )
                 self.assertEqual(j._frame_dependency_offset_start, 100)
                 self.assertEqual(j._frame_dependency_offset_end, 100)
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 50)
-    
+
     def testScriptFrameDependency(self):
         #   n1
         #   |
         #   c1 ---- e1
         #   |
-        #   n2 
+        #   n2
         s = Gaffer.ScriptNode()
 
         s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n1"]["dispatcher"]["batchSize"].setValue(1)
 
         s["c1"] = GafferDispatch.TaskContextVariables()
-        s["c1"]["variables"].addChild( Gaffer.CompoundDataPlug.MemberPlug( "member1", flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"].addChild( Gaffer.StringPlug( "name", defaultValue = '', flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"].addChild( Gaffer.FloatPlug( "value", defaultValue = 0.0, flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"].addChild( Gaffer.BoolPlug( "enabled", defaultValue = True, flags = Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic, ) )
-        s["c1"]["variables"]["member1"]["name"].setValue( 'frame' )
+        s["c1"]["variables"].addChild(
+            Gaffer.CompoundDataPlug.MemberPlug(
+                "member1",
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"].addChild(
+            Gaffer.StringPlug(
+                "name", defaultValue='',
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"].addChild(
+            Gaffer.FloatPlug(
+                "value",
+                defaultValue=0.0,
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"].addChild(
+            Gaffer.BoolPlug(
+                "enabled",
+                defaultValue=True,
+                flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic,
+            )
+        )
+        s["c1"]["variables"]["member1"]["name"].setValue('frame')
         s["c1"]["dispatcher"]["batchSize"].setValue(1)
         s["c1"]["preTasks"][0].setInput(s["n1"]["task"])
 
         s["e"] = Gaffer.Expression()
-        s["e"].setExpression( 'import random\nrandom.seed=(context.getFrame())\nparent["c1"]["variables"]["member1"]["value"] = random.randint(1,100000)', "python")
+        s["e"].setExpression(
+            'import random\nrandom.seed=(context.getFrame())\nparent["c1"]["variables"]["member1"]'
+            '["value"] = random.randint(1,100000)',
+            "python"
+        )
 
         s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
         s["n2"]["dispatcher"]["batchSize"].setValue(1)
         s["n2"]["preTasks"][0].setInput(s["c1"]["task"])
 
@@ -744,7 +1013,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
         dispatcher["frameRange"].setValue("1-50")
 
-        with mock.patch('GafferDeadline.DeadlineTools.submitJob', return_value=("testID", "testMessage")):
+        with mock.patch(
+            'GafferDeadline.DeadlineTools.submitJob',
+            return_value=("testID", "testMessage")
+        ):
             jobs = self.__job([s["n2"]], dispatcher)
 
         self.assertEqual(len(jobs), 3)
@@ -752,11 +1024,14 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 50)
-                self.assertEqual(j.getDependencyType(), GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted)
+                self.assertEqual(
+                    j.getDependencyType(),
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted
+                )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 50)
-        
+
 
 if __name__ == "__main__":
     unittest.main()

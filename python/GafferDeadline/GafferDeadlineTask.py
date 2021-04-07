@@ -36,6 +36,7 @@
 
 import GafferDispatch
 
+
 class GafferDeadlineTask(object):
     """ Mimic the Deadline representation of a task:
     - tasks are a sequential range of frames indicated by the start frame and end frame
@@ -50,9 +51,13 @@ class GafferDeadlineTask(object):
         self.setEndFrame(end_frame)
         self.setTaskNumber(task_number)
 
-        if self._start_frame is None and self.getGafferBatch() is not None and len(self.getGafferBatch().frames()) > 0:
+        if self._start_frame is None and self.getGafferBatch() is not None and len(
+            self.getGafferBatch().frames()
+        ) > 0:
             self.setStartFrame(gaffer_batch.frames()[0])
-        if self._end_frame is None and self.getGafferBatch() is not None and len(self.getGafferBatch().frames()) > 0:
+        if self._end_frame is None and self.getGafferBatch() is not None and len(
+            self.getGafferBatch().frames()
+        ) > 0:
             self.setEndFrame(gaffer_batch.frames()[len(gaffer_batch.frames()) - 1])
 
     def setTaskNumber(self, task_number):
@@ -97,7 +102,11 @@ class GafferDeadlineTask(object):
             self.setEndFrame(None)
 
     def setStartFrame(self, start_frame):
-        if self._end_frame is not None and start_frame is not None and start_frame > self._end_frame:
+        if (
+            self._end_frame is not None and
+            start_frame is not None and
+            start_frame > self._end_frame
+        ):
             raise ValueError("Start frame must be less than end frame.")
         if start_frame is not None:
             if int(start_frame) != start_frame:
@@ -110,7 +119,11 @@ class GafferDeadlineTask(object):
         return self._start_frame
 
     def setEndFrame(self, end_frame):
-        if self._start_frame is not None and end_frame is not None and end_frame < self._start_frame:
+        if (
+            self._start_frame is not None and
+            end_frame is not None and
+            end_frame < self._start_frame
+        ):
             raise ValueError("End frame must be greater than start frame.")
         if end_frame is not None:
             if int(end_frame) != end_frame:

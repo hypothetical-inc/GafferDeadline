@@ -58,7 +58,17 @@ class GafferDeadlineJob(object):
         frame_to_frame = 2
         scripted = 3
 
-    def __init__(self, job_properties={}, plugin_properties={}, aux_files=[], deadlineSettings={}, environmentVariables={}, gaffer_node=None, job_context={}, chunk_size=1):
+    def __init__(
+        self,
+        job_properties={},
+        plugin_properties={},
+        aux_files=[],
+        deadlineSettings={},
+        environmentVariables={},
+        gaffer_node=None,
+        job_context={},
+        chunk_size=1
+    ):
         self._dependency_type = None
         self._frame_dependency_offset_start = 0
         self._frame_dependency_offset_end = 0
@@ -68,13 +78,18 @@ class GafferDeadlineJob(object):
         self.setAuxFiles(aux_files)
         self.setGafferNode(gaffer_node)
         self.setContext(job_context)
-        
+
         self._deadlineSettings = deadlineSettings.copy()
         self._environmentVariables = environmentVariables.copy()
         self._job_id = None
         self._parent_jobs = []
         self._tasks = []
-        # dependencies are of the dictionary form {"dependency_job": <GafferDeadlineJob>, "dependent_task": <GafferDeadlineTask for this job>, "dependency_task": <GafferDeadlineTask for parent job>)
+        # dependencies are of the dictionary form
+        # {
+        #   "dependency_job": <GafferDeadlineJob>,
+        #   "dependent_task": <GafferDeadlineTask for this job>,
+        #   "dependency_task": <GafferDeadlineTask for parent job>
+        # }
         self._dependencies = []
 
     def setJobProperties(self, new_properties):
@@ -148,20 +163,31 @@ class GafferDeadlineJob(object):
     def appendDeadlineSetting(self, name, value):
         self._deadlineSettings[name] = value
 
-    # Separate batch_frames out so it can be unit tested. Gaffer does not allow creating _TaskBatch objects
+    # Separate batch_frames out so it can be unit tested. Gaffer does not allow creating
+    # _TaskBatch objects
     def addBatch(self, new_batch, batch_frames):
         """ A batch corresponds to one or more Deadline Tasks
         Deadline Tasks must be sequential frames with only a start and end frame
         """
         assert(new_batch is None or type(new_batch) == GafferDispatch.Dispatcher._TaskBatch)
-        # some TaskNodes like TaskList and TaskWedge submit with no frames because they are just hierarchy placeholders
-        # they still need to be in for proper dependency handling
+        # some TaskNodes like TaskList and TaskWedge submit with no frames because they are just
+        # hierarchy placeholders they still need to be in for proper dependency handling
         if len(batch_frames) > 0:
-            current_task = GafferDeadlineTask(new_batch, len(self.getTasks()), start_frame=batch_frames[0], end_frame=batch_frames[0])
+            current_task = GafferDeadlineTask(
+                new_batch,
+                len(self.getTasks()),
+                start_frame=batch_frames[0],
+                end_frame=batch_frames[0]
+            )
             self._tasks.append(current_task)
             for i in range(1, len(batch_frames)):
                 if (batch_frames[i] - batch_frames[i-1]) > 1:
-                    current_task = GafferDeadlineTask(new_batch, len(self.getTasks()), start_frame=batch_frames[i], end_frame=batch_frames[i])
+                    current_task = GafferDeadlineTask(
+                        new_batch,
+                        len(self.getTasks()),
+                        start_frame=batch_frames[i],
+                        end_frame=batch_frames[i]
+                    )
                     self._tasks.append(current_task)
                 else:
                     current_task.setEndFrame(batch_frames[i])
@@ -178,8 +204,8 @@ class GafferDeadlineJob(object):
         return self._tasks
 
     def buildTaskDependencies(self):
-        """ Link tasks to each other via their batch. Batches come from Gaffer and are what ultimately
-        need to be linked. But there may be more than one task for a particular batch.
+        """ Link tasks to each other via their batch. Batches come from Gaffer and are what
+        ultimately need to be linked. But there may be more than one task for a particular batch.
         """
         for task in self.getTasks():
             for job in self._parent_jobs:
@@ -198,8 +224,14 @@ class GafferDeadlineJob(object):
                         self._dependencies.append(dep_dict)
 
     def removeOrphanTasks(self):
-        self._tasks = [t for t in self.getTasks() if t.getStartFrame() is not None or t.getEndFrame() is not None or len(t.getGafferBatch().preTasks()) > 0]
-    
+        self._tasks = [
+            t for t in self.getTasks() if (
+                t.getStartFrame() is not None or
+                t.getEndFrame() is not None or
+                len(t.getGafferBatch().preTasks()) > 0
+            )
+        ]
+
     def getDependencies(self):
         return self._dependencies
 
@@ -230,14 +262,26 @@ class GafferDeadlineJob(object):
             job_file = open(job_file_path, mode="w")
 
         self._job_properties.update(self._deadlineSettings)
-        job_lines = ["{}={}".format(k, self._job_properties[k]) for k in self._job_properties.keys()]
+        job_lines = [
+            "{}={}".format(k, self._job_properties[k]) for k in self._job_properties.keys()
+        ]
         environmentVariableCounter = 0
         for v in self._environmentVariables.keys():
-            job_lines.append("EnvironmentKeyValue{}={}={}".format(environmentVariableCounter, v, self._environmentVariables[v]))
+            job_lines.append(
+                "EnvironmentKeyValue{}={}={}".format(
+                    environmentVariableCounter,
+                    v,
+                    self._environmentVariables[v]
+                )
+            )
             environmentVariableCounter += 1
         # Default to IECORE_LOG_LEVEL=INFO
         if "IECORE_LOG_LEVEL" not in self._environmentVariables:
-            job_lines.append("EnvironmentKeyValue{}=IECORE_LOG_LEVEL=INFO".format(environmentVariableCounter))
+            job_lines.append(
+                "EnvironmentKeyValue{}=IECORE_LOG_LEVEL=INFO".format(
+                    environmentVariableCounter
+                )
+            )
 
         job_file.write("\n".join(job_lines))
         job_file.close()
@@ -246,7 +290,12 @@ class GafferDeadlineJob(object):
             plugin_file = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
         else:
             plugin_file = open(plugin_file_path, mode="w")
-        plugin_lines = ["{}={}".format(k, self._plugin_properties[k]) for k in self._plugin_properties.keys()]
+        plugin_lines = [
+            "{}={}".format(
+                k,
+                self._plugin_properties[k]
+            ) for k in self._plugin_properties.keys()
+        ]
         plugin_file.write("\n".join(plugin_lines))
         plugin_file.close()
 

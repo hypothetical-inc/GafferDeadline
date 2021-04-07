@@ -45,7 +45,10 @@ import GafferDispatch
 
 class GafferDeadlineTaskTest(GafferTest.TestCase):
     def testSetFrameRange(self):
-        self.assertRaises(ValueError, GafferDeadline.GafferDeadlineTask, None, 1, start_frame=1, end_frame=0)
+        self.assertRaises(
+            ValueError,
+            GafferDeadline.GafferDeadlineTask, None, 1, start_frame=1, end_frame=0
+        )
         dt = GafferDeadline.GafferDeadlineTask(None, 1, start_frame=0, end_frame=1)
         self.assertRaises(ValueError, dt.setFrameRange, 1, 0)
         self.assertRaises(ValueError, dt.setFrameRange, 0.1, 100)
