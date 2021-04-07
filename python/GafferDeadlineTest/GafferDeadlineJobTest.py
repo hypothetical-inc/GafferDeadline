@@ -52,7 +52,7 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
         self.assertIn("testProp", dj.getJobProperties())
         self.assertEqual(dj.getJobProperties()["testProp"], "testVal")
 
-        dj = GafferDeadline.GafferDeadlineJob(job_properties={"testProp2": "testVal2"})
+        dj = GafferDeadline.GafferDeadlineJob(jobProperties={"testProp2": "testVal2"})
         self.assertIn("Plugin", dj.getJobProperties())
         self.assertIn("testProp2", dj.getJobProperties())
         self.assertEqual(dj.getJobProperties()["testProp2"], "testVal2")
@@ -64,7 +64,7 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
         self.assertIn("testProp", dj.getPluginProperties())
         self.assertEqual(dj.getPluginProperties()["testProp"], "testVal")
 
-        dj = GafferDeadline.GafferDeadlineJob(plugin_properties={"testProp2": "testVal2"})
+        dj = GafferDeadline.GafferDeadlineJob(pluginProperties={"testProp2": "testVal2"})
         self.assertIn("testProp2", dj.getPluginProperties())
         self.assertEqual(dj.getPluginProperties()["testProp2"], "testVal2")
 
@@ -75,18 +75,18 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
         self.assertEqual(len(dj.getAuxFiles()), 2)
         self.assertIn("file1", dj.getAuxFiles())
 
-        dj = GafferDeadline.GafferDeadlineJob(aux_files=["file3", "file4"])
+        dj = GafferDeadline.GafferDeadlineJob(auxFiles=["file3", "file4"])
         self.assertEqual(len(dj.getAuxFiles()), 2)
         self.assertIn("file3", dj.getAuxFiles())
 
     def testGafferNode(self):
-        task_node = GafferDispatch.TaskNode()
+        taskNode = GafferDispatch.TaskNode()
         dj = GafferDeadline.GafferDeadlineJob()
-        dj.setGafferNode(task_node)
-        self.assertEqual(dj.getGafferNode(), task_node)
+        dj.setGafferNode(taskNode)
+        self.assertEqual(dj.getGafferNode(), taskNode)
 
-        dj = GafferDeadline.GafferDeadlineJob(gaffer_node=task_node)
-        self.assertEqual(dj.getGafferNode(), task_node)
+        dj = GafferDeadline.GafferDeadlineJob(gafferNode=taskNode)
+        self.assertEqual(dj.getGafferNode(), taskNode)
 
         self.assertRaises(ValueError, dj.setGafferNode, "bad value")
 
@@ -121,13 +121,13 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
     def testParentJob(self):
         djc = GafferDeadline.GafferDeadlineJob()
         djp = GafferDeadline.GafferDeadlineJob()
-        task_node = GafferDispatch.TaskNode()
-        task_node2 = GafferDispatch.TaskNode()
+        taskNode = GafferDispatch.TaskNode()
+        taskNode2 = GafferDispatch.TaskNode()
         djc.addParentJob(djp)
         self.assertIn(djp, djc.getParentJobs())
-        djp.setGafferNode(task_node)
-        self.assertEqual(djc.getParentJobByGafferNode(task_node), djp)
-        self.assertEqual(djc.getParentJobByGafferNode(task_node2), None)
+        djp.setGafferNode(taskNode)
+        self.assertEqual(djc.getParentJobByGafferNode(taskNode), djp)
+        self.assertEqual(djc.getParentJobByGafferNode(taskNode2), None)
 
 
 if __name__ == "__main__":

@@ -211,15 +211,15 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             jobs = self.__job([s["n2"], s["n3"]])
 
         self.assertEqual(len(jobs), 3)
-        dependency_count = {"n1": 0, "n2": 1, "n3": 0}
+        dependencyCount = {"n1": 0, "n2": 1, "n3": 0}
         self.assertEqual(
-            len(jobs[0].getParentJobs()), dependency_count[jobs[0].getJobProperties()["Name"]]
+            len(jobs[0].getParentJobs()), dependencyCount[jobs[0].getJobProperties()["Name"]]
         )
         self.assertEqual(
-            len(jobs[1].getParentJobs()), dependency_count[jobs[1].getJobProperties()["Name"]]
+            len(jobs[1].getParentJobs()), dependencyCount[jobs[1].getJobProperties()["Name"]]
         )
         self.assertEqual(
-            len(jobs[2].getParentJobs()), dependency_count[jobs[2].getJobProperties()["Name"]]
+            len(jobs[2].getParentJobs()), dependencyCount[jobs[2].getJobProperties()["Name"]]
         )
 
     def testSharedPreTasks(self):
@@ -384,7 +384,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.jobToJob
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
@@ -434,7 +434,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
@@ -785,7 +785,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
@@ -795,21 +795,21 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 1)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
                 )
             elif j.getJobProperties()["Name"] == "n4":
                 self.assertEqual(len(j.getDependencies()), 4)
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
                 )
             elif j.getJobProperties()["Name"] == "t1":
                 self.assertEqual(len(j.getDependencies()), 12)
                 self.assertEqual(len(j.getTasks()), 5)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
                 )
 
     def testFrameMask(self):
@@ -857,7 +857,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 50)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.jobToJob
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
@@ -940,10 +940,10 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 50)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
                 )
-                self.assertEqual(j._frame_dependency_offset_start, 100)
-                self.assertEqual(j._frame_dependency_offset_end, 100)
+                self.assertEqual(j._frameDependencyOffsetStart, 100)
+                self.assertEqual(j._frameDependencyOffsetEnd, 100)
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 50)

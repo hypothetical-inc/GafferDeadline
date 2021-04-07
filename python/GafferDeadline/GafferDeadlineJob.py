@@ -54,105 +54,105 @@ class GafferDeadlineJob(object):
 
     class DeadlineDependencyType(object):
         none = 0
-        job_to_job = 1
-        frame_to_frame = 2
+        jobToJob = 1
+        frameToFrame = 2
         scripted = 3
 
     def __init__(
         self,
-        job_properties={},
-        plugin_properties={},
-        aux_files=[],
+        jobProperties={},
+        pluginProperties={},
+        auxFiles=[],
         deadlineSettings={},
         environmentVariables={},
-        gaffer_node=None,
-        job_context={},
-        chunk_size=1
+        gafferNode=None,
+        jobContext={},
+        chunkSize=1
     ):
-        self._dependency_type = None
-        self._frame_dependency_offset_start = 0
-        self._frame_dependency_offset_end = 0
+        self._dependencyType = None
+        self._frameDependencyOffsetStart = 0
+        self._frameDependencyOffsetEnd = 0
 
-        self.setJobProperties(job_properties)
-        self.setPluginProperties(plugin_properties)
-        self.setAuxFiles(aux_files)
-        self.setGafferNode(gaffer_node)
-        self.setContext(job_context)
+        self.setJobProperties(jobProperties)
+        self.setPluginProperties(pluginProperties)
+        self.setAuxFiles(auxFiles)
+        self.setGafferNode(gafferNode)
+        self.setContext(jobContext)
 
         self._deadlineSettings = deadlineSettings.copy()
         self._environmentVariables = environmentVariables.copy()
-        self._job_id = None
-        self._parent_jobs = []
+        self._jobId = None
+        self._parentJobs = []
         self._tasks = []
         # dependencies are of the dictionary form
         # {
-        #   "dependency_job": <GafferDeadlineJob>,
-        #   "dependent_task": <GafferDeadlineTask for this job>,
-        #   "dependency_task": <GafferDeadlineTask for parent job>
+        #   "dependencyJob": <GafferDeadlineJob>,
+        #   "dependentTask": <GafferDeadlineTask for this job>,
+        #   "dependencyTask": <GafferDeadlineTask for parent job>
         # }
         self._dependencies = []
 
-    def setJobProperties(self, new_properties):
+    def setJobProperties(self, newProperties):
         """ The only parameter Deadline requires is Plugin and because we are
         focusing on Gaffer plugins, make sure that's always set.
         """
-        assert(type(new_properties) == dict)
-        self._job_properties = new_properties
-        self._job_properties.update({"Plugin": "Gaffer"})
+        assert(type(newProperties) == dict)
+        self._jobProperties = newProperties
+        self._jobProperties.update({"Plugin": "Gaffer"})
 
     def getJobProperties(self):
-        return self._job_properties
+        return self._jobProperties
 
-    def setDependencyType(self, dep_type):
-        self._dependency_type = dep_type
+    def setDependencyType(self, depType):
+        self._dependencyType = depType
 
     def getDependencyType(self):
-        return self._dependency_type
+        return self._dependencyType
 
-    def setPluginProperties(self, new_properties):
-        assert(type(new_properties) == dict)
-        self._plugin_properties = new_properties.copy()
+    def setPluginProperties(self, newProperties):
+        assert(type(newProperties) == dict)
+        self._pluginProperties = newProperties.copy()
 
     def getPluginProperties(self):
-        return self._plugin_properties
+        return self._pluginProperties
 
-    def setAuxFiles(self, new_aux_files):
-        assert(type(new_aux_files) == list or type(new_aux_files) == str)
-        new_aux_files = new_aux_files if type(new_aux_files) == list else [new_aux_files]
-        self._aux_files = new_aux_files
+    def setAuxFiles(self, newAuxFiles):
+        assert(type(newAuxFiles) == list or type(newAuxFiles) == str)
+        newAuxFiles = newAuxFiles if type(newAuxFiles) == list else [newAuxFiles]
+        self._auxFiles = newAuxFiles
 
     def getAuxFiles(self):
-        return self._aux_files
+        return self._auxFiles
 
     def getJobID(self):
-        return self._job_id
+        return self._jobId
 
-    def setGafferNode(self, new_node):
-        if not issubclass(type(new_node), GafferDispatch.TaskNode) and new_node is not None:
+    def setGafferNode(self, newNode):
+        if not issubclass(type(newNode), GafferDispatch.TaskNode) and newNode is not None:
             raise ValueError("Gaffer node must be a GafferDispatch.TaskNode or None")
-        self._gaffer_node = new_node
+        self._gafferNode = newNode
 
     def getGafferNode(self):
-        return self._gaffer_node
+        return self._gafferNode
 
-    def setContext(self, new_context):
-        self._context = new_context
+    def setContext(self, newContext):
+        self._context = newContext
 
     def getContext(self):
         return self._context
 
-    def addParentJob(self, parent_job):
-        if type(parent_job) != GafferDeadlineJob:
+    def addParentJob(self, parentJob):
+        if type(parentJob) != GafferDeadlineJob:
             raise ValueError("Parent job must be a GafferDeadlineJob")
-        if parent_job not in self._parent_jobs:
-            self._parent_jobs.append(parent_job)
+        if parentJob not in self._parentJobs:
+            self._parentJobs.append(parentJob)
 
     def getParentJobs(self):
-        return self._parent_jobs
+        return self._parentJobs
 
-    def getParentJobByGafferNode(self, gaffer_node):
-        for job in self._parent_jobs:
-            if job.getGafferNode() == gaffer_node:
+    def getParentJobByGafferNode(self, gafferNode):
+        for job in self._parentJobs:
+            if job.getGafferNode() == gafferNode:
                 return job
 
         return None
@@ -163,42 +163,42 @@ class GafferDeadlineJob(object):
     def appendDeadlineSetting(self, name, value):
         self._deadlineSettings[name] = value
 
-    # Separate batch_frames out so it can be unit tested. Gaffer does not allow creating
+    # Separate batchFrames out so it can be unit tested. Gaffer does not allow creating
     # _TaskBatch objects
-    def addBatch(self, new_batch, batch_frames):
+    def addBatch(self, newBatch, batchFrames):
         """ A batch corresponds to one or more Deadline Tasks
         Deadline Tasks must be sequential frames with only a start and end frame
         """
-        assert(new_batch is None or type(new_batch) == GafferDispatch.Dispatcher._TaskBatch)
+        assert(newBatch is None or type(newBatch) == GafferDispatch.Dispatcher._TaskBatch)
         # some TaskNodes like TaskList and TaskWedge submit with no frames because they are just
         # hierarchy placeholders they still need to be in for proper dependency handling
-        if len(batch_frames) > 0:
-            current_task = GafferDeadlineTask(
-                new_batch,
+        if len(batchFrames) > 0:
+            currentTask = GafferDeadlineTask(
+                newBatch,
                 len(self.getTasks()),
-                start_frame=batch_frames[0],
-                end_frame=batch_frames[0]
+                startFrame=batchFrames[0],
+                endFrame=batchFrames[0]
             )
-            self._tasks.append(current_task)
-            for i in range(1, len(batch_frames)):
-                if (batch_frames[i] - batch_frames[i-1]) > 1:
-                    current_task = GafferDeadlineTask(
-                        new_batch,
+            self._tasks.append(currentTask)
+            for i in range(1, len(batchFrames)):
+                if (batchFrames[i] - batchFrames[i-1]) > 1:
+                    currentTask = GafferDeadlineTask(
+                        newBatch,
                         len(self.getTasks()),
-                        start_frame=batch_frames[i],
-                        end_frame=batch_frames[i]
+                        startFrame=batchFrames[i],
+                        endFrame=batchFrames[i]
                     )
-                    self._tasks.append(current_task)
+                    self._tasks.append(currentTask)
                 else:
-                    current_task.setEndFrame(batch_frames[i])
+                    currentTask.setEndFrame(batchFrames[i])
         else:
             # Control nodes like TaskList have no frames but do need tasks created to pass
             # through dependencies
-            self._tasks.append(GafferDeadlineTask(new_batch, len(self.getTasks())))
+            self._tasks.append(GafferDeadlineTask(newBatch, len(self.getTasks())))
 
     def getTasksForBatch(self, batch):
-        task_list = [t for t in self.getTasks() if t.getGafferBatch() == batch]
-        return task_list
+        taskList = [t for t in self.getTasks() if t.getGafferBatch() == batch]
+        return taskList
 
     def getTasks(self):
         return self._tasks
@@ -208,20 +208,20 @@ class GafferDeadlineJob(object):
         ultimately need to be linked. But there may be more than one task for a particular batch.
         """
         for task in self.getTasks():
-            for job in self._parent_jobs:
-                for parent_batch in task.getGafferBatch().preTasks():
-                    dependency_tasks = job.getTasksForBatch(parent_batch)
-                    for dep in dependency_tasks:
+            for job in self._parentJobs:
+                for parentBatch in task.getGafferBatch().preTasks():
+                    dependencyTasks = job.getTasksForBatch(parentBatch)
+                    for dep in dependencyTasks:
                         # Control tasks should have their frames set to the upstream frame range
                         # effectively making them frame-frame dependent
                         if task.getStartFrame() is None or task.getEndFrame() is None:
                             task.setFrameRange(dep.getStartFrame(), dep.getEndFrame())
-                        dep_dict = {
-                            "dependency_job": job,
-                            "dependent_task": task,
-                            "dependency_task": dep
+                        depDict = {
+                            "dependencyJob": job,
+                            "dependentTask": task,
+                            "dependencyTask": dep
                         }
-                        self._dependencies.append(dep_dict)
+                        self._dependencies.append(depDict)
 
     def removeOrphanTasks(self):
         self._tasks = [
@@ -235,10 +235,10 @@ class GafferDeadlineJob(object):
     def getDependencies(self):
         return self._dependencies
 
-    def submitJob(self, job_file_path=None, plugin_file_path=None):
+    def submitJob(self, jobFilePath=None, pluginFilePath=None):
         """ Submit the job to Deadline.
-        Returns a tuple of (submitted_job_id, Deadline_status_output). submitted_job_id
-        will be None if submission failed. Deadline_status_output can be used to help figure out
+        Returns a tuple of (submittedJobId, deadlineStatusOutput). submittedJobId
+        will be None if submission failed. deadlineStatusOutput can be used to help figure out
         why it failed.
 
         Check to make sure that all auxiliary files exist, otherwise submission will fail
@@ -249,25 +249,25 @@ class GafferDeadlineJob(object):
         Job and plugin files are just serializations of their respective dictionaries in the
         form of key=value separated by newlines.
 
-        If the job_file or plugin_file are not supplied, create temp files for them.
+        If the jobFile or pluginFile are not supplied, create temp files for them.
         Only remove temp files, not supplied files.
         """
-        for aux_file in self._aux_files:
-            if not os.path.isfile(aux_file):
-                raise IOError("{} does not exist".format(aux_file))
+        for auxFile in self._auxFiles:
+            if not os.path.isfile(auxFile):
+                raise IOError("{} does not exist".format(auxFile))
 
-        if job_file_path is None:
-            job_file = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
+        if jobFilePath is None:
+            jobFile = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
         else:
-            job_file = open(job_file_path, mode="w")
+            jobFile = open(jobFilePath, mode="w")
 
-        self._job_properties.update(self._deadlineSettings)
-        job_lines = [
-            "{}={}".format(k, self._job_properties[k]) for k in self._job_properties.keys()
+        self._jobProperties.update(self._deadlineSettings)
+        jobLines = [
+            "{}={}".format(k, self._jobProperties[k]) for k in self._jobProperties.keys()
         ]
         environmentVariableCounter = 0
         for v in self._environmentVariables.keys():
-            job_lines.append(
+            jobLines.append(
                 "EnvironmentKeyValue{}={}={}".format(
                     environmentVariableCounter,
                     v,
@@ -277,39 +277,39 @@ class GafferDeadlineJob(object):
             environmentVariableCounter += 1
         # Default to IECORE_LOG_LEVEL=INFO
         if "IECORE_LOG_LEVEL" not in self._environmentVariables:
-            job_lines.append(
+            jobLines.append(
                 "EnvironmentKeyValue{}=IECORE_LOG_LEVEL=INFO".format(
                     environmentVariableCounter
                 )
             )
 
-        job_file.write("\n".join(job_lines))
-        job_file.close()
+        jobFile.write("\n".join(jobLines))
+        jobFile.close()
 
-        if plugin_file_path is None:
-            plugin_file = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
+        if pluginFilePath is None:
+            pluginFile = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
         else:
-            plugin_file = open(plugin_file_path, mode="w")
-        plugin_lines = [
+            pluginFile = open(pluginFilePath, mode="w")
+        pluginLines = [
             "{}={}".format(
                 k,
-                self._plugin_properties[k]
-            ) for k in self._plugin_properties.keys()
+                self._pluginProperties[k]
+            ) for k in self._pluginProperties.keys()
         ]
-        plugin_file.write("\n".join(plugin_lines))
-        plugin_file.close()
+        pluginFile.write("\n".join(pluginLines))
+        pluginFile.close()
 
-        result = DeadlineTools.submitJob(job_file.name, plugin_file.name, self._aux_files)
+        result = DeadlineTools.submitJob(jobFile.name, pluginFile.name, self._auxFiles)
 
         IECore.Log.debug("Submission results:", result)
 
         if result[0] is None:
             raise RuntimeError("Deadline submission failed: \n{}".format(result[1]))
-        self._job_id = result[0]
+        self._jobId = result[0]
 
-        if job_file is None:
-            os.remove(job_file)
-        if plugin_file is None:
-            os.remove(plugin_file)
+        if jobFile is None:
+            os.remove(jobFile)
+        if pluginFile is None:
+            os.remove(pluginFile)
 
-        return (self._job_id, result[1])
+        return (self._jobId, result[1])

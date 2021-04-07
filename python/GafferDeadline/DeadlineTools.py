@@ -44,13 +44,13 @@ import IECore
 def runDeadlineCommand(arguments, hideWindow=True):
     if "DEADLINE_PATH" not in os.environ:
         raise RuntimeError("DEADLINE_PATH must be set to the Deadline executable path")
-    executable_suffix = ".exe" if os.name == "nt" else ""
-    deadline_command = os.path.join(
+    executableSuffix = ".exe" if os.name == "nt" else ""
+    deadlineCommand = os.path.join(
         os.environ['DEADLINE_PATH'],
-        "deadlinecommand" + executable_suffix
+        "deadlinecommand" + executableSuffix
     )
 
-    arguments = [deadline_command] + arguments
+    arguments = [deadlineCommand] + arguments
 
     p = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -67,15 +67,15 @@ def runDeadlineCommand(arguments, hideWindow=True):
     return output
 
 
-def submitJob(job_info_file, plugin_info_file, aux_files):
-    submission_results = runDeadlineCommand([job_info_file, plugin_info_file] + aux_files)
+def submitJob(jobInfoFile, pluginInfoFile, auxFiles):
+    submissionResults = runDeadlineCommand([jobInfoFile, pluginInfoFile] + auxFiles)
 
-    for line in submission_results.split():
+    for line in submissionResults.split():
         if line.startswith("JobID="):
             jobID = line.replace("JobID=", "").strip()
-            return (jobID, submission_results)
+            return (jobID, submissionResults)
 
-    return (None, submission_results)
+    return (None, submissionResults)
 
 
 def getMachineList():
