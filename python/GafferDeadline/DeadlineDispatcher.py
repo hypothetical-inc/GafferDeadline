@@ -41,7 +41,7 @@ import IECore
 import Gaffer
 import GafferDispatch
 
-import GafferDeadline
+from .GafferDeadlineJob import GafferDeadlineJob
 
 
 class DeadlineDispatcher(GafferDispatch.Dispatcher):
@@ -101,7 +101,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         context = Gaffer.Context.current()
         dispatch_data["deadlineBatch"] = context.substitute(self["jobName"].getValue()) or "untitled"
 
-        root_deadline_job = GafferDeadline.GafferDeadlineJob()
+        root_deadline_job = GafferDeadlineJob()
         root_deadline_job.setGafferNode(root_batch.node())
         root_deadline_job.setAuxFiles([dispatch_data["scriptFile"]])
         self.__addGafferDeadlineJob(root_deadline_job)
@@ -127,7 +127,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
         deadline_job = self.__getGafferDeadlineJob(batch.node(), batch.context())
         if not deadline_job:
-            deadline_job = GafferDeadline.GafferDeadlineJob()
+            deadline_job = GafferDeadlineJob()
             deadline_job.setGafferNode(batch.node())
             deadline_job.setContext(batch.context())
             deadline_job.setAuxFiles([dispatch_data["scriptFile"]])
@@ -320,9 +320,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         )
                     if frame_dependent:
                         job_info.update({"IsFrameDependent": True})
-                        deadline_job.setDependencyType(GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
+                        deadline_job.setDependencyType(GafferDeadlineJob.DeadlineDependencyType.frame_to_frame)
                     else:
-                        deadline_job.setDependencyType(GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.job_to_job)
+                        deadline_job.setDependencyType(GafferDeadlineJob.DeadlineDependencyType.job_to_job)
                 else:
                     job_info.update(
                         {
@@ -333,9 +333,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     for i in range(0,len(dep_list)):
                         dep_task = dep_list[i]
                         job_info["ExtraInfoKeyValue{}".format(i)] = "{}:{}={}".format(int(dep_task["dependent_task"].getTaskNumber()), dep_task["dependency_job"].getJobID(), dep_task["dependency_task"].getTaskNumber())
-                    deadline_job.setDependencyType(GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted)
+                    deadline_job.setDependencyType(GafferDeadlineJob.DeadlineDependencyType.scripted)
             else:
-                deadline_job.setDependencyType(GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none)
+                deadline_job.setDependencyType(GafferDeadlineJob.DeadlineDependencyType.none)
 
             plugin_info = {"Script": os.path.split(dispatch_data["scriptFile"])[-1],
                            "Version": Gaffer.About.versionString(),

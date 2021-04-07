@@ -34,9 +34,9 @@
 #
 ##########################################################################
 
-from DeadlineDispatcher import DeadlineDispatcher
-from GafferDeadlineJob import GafferDeadlineJob
-from GafferDeadlineTask import GafferDeadlineTask
-from DeadlineTools import *
+from .DeadlineDispatcher import DeadlineDispatcher
+from .GafferDeadlineJob import GafferDeadlineJob
+from .GafferDeadlineTask import GafferDeadlineTask
+from .DeadlineTools import *
 
 __import__( "IECore" ).loadConfig( "GAFFER_STARTUP_PATHS", {}, subdirectory = "GafferDeadline" )

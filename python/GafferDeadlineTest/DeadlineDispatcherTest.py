@@ -36,12 +36,13 @@
 
 import os
 import unittest
-import mock
+from unittest import mock
 
 import Gaffer
 import GafferTest
 import GafferDispatch
 import GafferDispatchTest
+
 import GafferDeadline
 
 
@@ -383,7 +384,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n"] = GafferDispatch.PythonCommand()
-        s["n"]["command"] = Gaffer.StringPlug(defaultValue="print context.getFrame()", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        s["n"]["command"] = Gaffer.StringPlug(defaultValue="print(context.getFrame())", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
         s["n"]["sequence"].setValue(True)
         s["n"]["dispatcher"]["batchSize"].setValue(1)
 

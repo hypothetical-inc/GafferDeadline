@@ -42,8 +42,8 @@ import Gaffer
 import GafferTest
 import GafferUI
 import GafferUITest
-
 import GafferDispatch
+
 import GafferDeadline
 import GafferDeadlineUI
 

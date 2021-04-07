@@ -40,8 +40,9 @@ import tempfile
 import IECore
 
 import GafferDispatch
-import GafferDeadline
-import DeadlineTools
+
+from . import DeadlineTools
+from .GafferDeadlineTask import GafferDeadlineTask
 
 
 class GafferDeadlineJob(object):
@@ -156,18 +157,18 @@ class GafferDeadlineJob(object):
         # some TaskNodes like TaskList and TaskWedge submit with no frames because they are just hierarchy placeholders
         # they still need to be in for proper dependency handling
         if len(batch_frames) > 0:
-            current_task = GafferDeadline.GafferDeadlineTask(new_batch, len(self.getTasks()), start_frame=batch_frames[0], end_frame=batch_frames[0])
+            current_task = GafferDeadlineTask(new_batch, len(self.getTasks()), start_frame=batch_frames[0], end_frame=batch_frames[0])
             self._tasks.append(current_task)
             for i in range(1, len(batch_frames)):
                 if (batch_frames[i] - batch_frames[i-1]) > 1:
-                    current_task = GafferDeadline.GafferDeadlineTask(new_batch, len(self.getTasks()), start_frame=batch_frames[i], end_frame=batch_frames[i])
+                    current_task = GafferDeadlineTask(new_batch, len(self.getTasks()), start_frame=batch_frames[i], end_frame=batch_frames[i])
                     self._tasks.append(current_task)
                 else:
                     current_task.setEndFrame(batch_frames[i])
         else:
             # Control nodes like TaskList have no frames but do need tasks created to pass
             # through dependencies
-            self._tasks.append(GafferDeadline.GafferDeadlineTask(new_batch, len(self.getTasks())))
+            self._tasks.append(GafferDeadlineTask(new_batch, len(self.getTasks())))
 
     def getTasksForBatch(self, batch):
         task_list = [t for t in self.getTasks() if t.getGafferBatch() == batch]
