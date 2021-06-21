@@ -40,12 +40,22 @@ import GafferDeadlineUI
 
 
 class ListSelectionDialog(GafferUI.Dialogue):
-    def __init__(self, masterList, selectionList, title="Choose Wisely", cancelLabel="Cancel", confirmLabel="OK", allowMultipleSelection=False, **kw):
+    def __init__(
+        self,
+        masterList,
+        selectionList,
+        title="Choose Wisely",
+        cancelLabel="Cancel",
+        confirmLabel="OK",
+        allowMultipleSelection=False, **kw
+    ):
         GafferUI.Dialogue.__init__(self, title, **kw)
         self.__masterList = masterList
         self.__selectionList = [i for i in selectionList if i in masterList]
 
-        self.__masterListWidget = GafferDeadlineUI.ListWidget(allowMultipleSelection=allowMultipleSelection)
+        self.__masterListWidget = GafferDeadlineUI.ListWidget(
+            allowMultipleSelection=allowMultipleSelection
+        )
         for i in self.__masterList:
             self.__masterListWidget.addItem(i)
         self.__masterListWidget.setSelectedStrings(self.__selectionList)
@@ -53,9 +63,13 @@ class ListSelectionDialog(GafferUI.Dialogue):
         self._setWidget(self.__masterListWidget)
 
         self.__cancelButton = self._addButton(cancelLabel)
-        self.__cancelButtonConnection = self.__cancelButton.clickedSignal().connect(Gaffer.WeakMethod(self.__buttonClicked))
+        self.__cancelButtonConnection = self.__cancelButton.clickedSignal().connect(
+            Gaffer.WeakMethod(self.__buttonClicked)
+        )
         self.__confirmButton = self._addButton(confirmLabel)
-        self.__confirmButtonConnection = self.__confirmButton.clickedSignal().connect(Gaffer.WeakMethod(self.__buttonClicked))
+        self.__confirmButtonConnection = self.__confirmButton.clickedSignal().connect(
+            Gaffer.WeakMethod(self.__buttonClicked)
+        )
 
     def waitForSelection(self, **kw):
         button = self.waitForButton(**kw)

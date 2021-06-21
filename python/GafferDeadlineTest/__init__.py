@@ -36,8 +36,8 @@
 
 import unittest
 
-from DeadlineDispatcherTest import DeadlineDispatcherTest
-from GafferDeadlineJobTest import GafferDeadlineJobTest
+from .DeadlineDispatcherTest import DeadlineDispatcherTest
+from .GafferDeadlineJobTest import GafferDeadlineJobTest
 
 if __name__ == "__main__":
     unittest.main()

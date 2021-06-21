@@ -36,88 +36,101 @@
 
 import GafferDispatch
 
+
 class GafferDeadlineTask(object):
     """ Mimic the Deadline representation of a task:
     - tasks are a sequential range of frames indicated by the start frame and end frame
     - tasks can only be associated with one job and therefore one batch / Gaffer Task Node
     """
-    def __init__(self, gaffer_batch, task_number, start_frame=None, end_frame=None):
-        self._start_frame = None
-        self._end_frame = None
+    def __init__(self, gafferBatch, taskNumber, startFrame=None, endFrame=None):
+        self._startFrame = None
+        self._endFrame = None
 
-        self.setGafferBatch(gaffer_batch)
-        self.setStartFrame(start_frame)
-        self.setEndFrame(end_frame)
-        self.setTaskNumber(task_number)
+        self.setGafferBatch(gafferBatch)
+        self.setStartFrame(startFrame)
+        self.setEndFrame(endFrame)
+        self.setTaskNumber(taskNumber)
 
-        if self._start_frame is None and self.getGafferBatch() is not None and len(self.getGafferBatch().frames()) > 0:
-            self.setStartFrame(gaffer_batch.frames()[0])
-        if self._end_frame is None and self.getGafferBatch() is not None and len(self.getGafferBatch().frames()) > 0:
-            self.setEndFrame(gaffer_batch.frames()[len(gaffer_batch.frames()) - 1])
+        if self._startFrame is None and self.getGafferBatch() is not None and len(
+            self.getGafferBatch().frames()
+        ) > 0:
+            self.setStartFrame(gafferBatch.frames()[0])
+        if self._endFrame is None and self.getGafferBatch() is not None and len(
+            self.getGafferBatch().frames()
+        ) > 0:
+            self.setEndFrame(gafferBatch.frames()[len(gafferBatch.frames()) - 1])
 
-    def setTaskNumber(self, task_number):
-        assert(type(task_number) == int)
-        self._task_number = task_number
+    def setTaskNumber(self, taskNumber):
+        assert(type(taskNumber) == int)
+        self._taskNumber = taskNumber
 
     def getTaskNumber(self):
-        return self._task_number
+        return self._taskNumber
 
-    def setGafferBatch(self, gaffer_batch):
-        assert(gaffer_batch is None or type(gaffer_batch) == GafferDispatch.Dispatcher._TaskBatch)
-        self._gaffer_batch = gaffer_batch
+    def setGafferBatch(self, gafferBatch):
+        assert(gafferBatch is None or type(gafferBatch) == GafferDispatch.Dispatcher._TaskBatch)
+        self._gafferBatch = gafferBatch
 
     def getGafferBatch(self):
-        return self._gaffer_batch
+        return self._gafferBatch
 
-    def setFrameRange(self, start_frame, end_frame):
-        if end_frame < start_frame:
+    def setFrameRange(self, startFrame, endFrame):
+        if endFrame < startFrame:
             raise ValueError("End frame must be greater than start frame.")
-        if int(start_frame) != start_frame or int(end_frame) != end_frame:
+        if int(startFrame) != startFrame or int(endFrame) != endFrame:
             raise ValueError("Start and end frames must be integers.")
-        self._start_frame = int(start_frame)
-        self._end_frame = int(end_frame)
+        self._startFrame = int(startFrame)
+        self._endFrame = int(endFrame)
 
-    def setFrameRangeFromList(self, frame_list):
-        frames_sequential = True
-        if len(frame_list) > 0:
-            if int(frame_list[0]) != frame_list[0]:
+    def setFrameRangeFromList(self, frameList):
+        framesSequential = True
+        if len(frameList) > 0:
+            if int(frameList[0]) != frameList[0]:
                 raise ValueError("Frame numbers must be integers.")
-            for i in range(1, len(frame_list)-1):
-                if int(frame_list[i]) != frame_list[i]:
+            for i in range(1, len(frameList)-1):
+                if int(frameList[i]) != frameList[i]:
                     raise ValueError("Frame numbers must be integers.")
-                if frame_list[i] - frame_list[i-1] != 1:
-                    frames_sequential = False
+                if frameList[i] - frameList[i-1] != 1:
+                    framesSequential = False
 
-            if not frames_sequential:
+            if not framesSequential:
                 raise ValueError("Frame list must be sequential.")
-            self._start_frame = int(frame_list[0])
-            self._end_frame = int(frame_list[len(frame_list) - 1])
+            self._startFrame = int(frameList[0])
+            self._endFrame = int(frameList[len(frameList) - 1])
         else:
             self.setStartFrame(None)
             self.setEndFrame(None)
 
-    def setStartFrame(self, start_frame):
-        if self._end_frame is not None and start_frame is not None and start_frame > self._end_frame:
+    def setStartFrame(self, startFrame):
+        if (
+            self._endFrame is not None and
+            startFrame is not None and
+            startFrame > self._endFrame
+        ):
             raise ValueError("Start frame must be less than end frame.")
-        if start_frame is not None:
-            if int(start_frame) != start_frame:
+        if startFrame is not None:
+            if int(startFrame) != startFrame:
                 raise ValueError("Frame numbers must be integers.")
-            self._start_frame = int(start_frame)
+            self._startFrame = int(startFrame)
         else:
-            self._start_frame = None
+            self._startFrame = None
 
     def getStartFrame(self):
-        return self._start_frame
+        return self._startFrame
 
-    def setEndFrame(self, end_frame):
-        if self._start_frame is not None and end_frame is not None and end_frame < self._start_frame:
+    def setEndFrame(self, endFrame):
+        if (
+            self._startFrame is not None and
+            endFrame is not None and
+            endFrame < self._startFrame
+        ):
             raise ValueError("End frame must be greater than start frame.")
-        if end_frame is not None:
-            if int(end_frame) != end_frame:
+        if endFrame is not None:
+            if int(endFrame) != endFrame:
                 raise ValueError("Frame numbers must be integers.")
-            self._end_frame = int(end_frame)
+            self._endFrame = int(endFrame)
         else:
-            self._end_frame = None
+            self._endFrame = None
 
     def getEndFrame(self):
-        return self._end_frame
+        return self._endFrame
