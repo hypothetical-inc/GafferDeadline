@@ -70,7 +70,8 @@ def runDeadlineCommand(arguments, hideWindow=True):
 def submitJob(jobInfoFile, pluginInfoFile, auxFiles):
     submissionResults = runDeadlineCommand([jobInfoFile, pluginInfoFile] + auxFiles)
 
-    for line in submissionResults.split():
+    for i in submissionResults.split():
+        line = i.decode()
         if line.startswith("JobID="):
             jobID = line.replace("JobID=", "").strip()
             return (jobID, submissionResults)
@@ -80,19 +81,19 @@ def submitJob(jobInfoFile, pluginInfoFile, auxFiles):
 
 def getMachineList():
     output = runDeadlineCommand(["GetSlaveNames"])
-    return output.split()
+    return [i.decode() for i in output.split()]
 
 
 def getLimitGroups():
     output = runDeadlineCommand(["GetLimitGroups"])
-    return re.findall(r'Name=(.*)', output)
+    return re.findall(r'Name=(.*)', output.decode())
 
 
 def getGroups():
     output = runDeadlineCommand(["GetSubmissionInfo", "groups"])
-    return output.split()[1:]    # remove [Groups] header
+    return [i.decode() for i in output.split()[1:]]    # remove [Groups] header
 
 
 def getPools():
     output = runDeadlineCommand(["GetSubmissionInfo", "pools"])
-    return output.split()[1:]    # remove [Groups] header
+    return [i.decode() for i in output.split()[1:]]    # remove [Groups] header
