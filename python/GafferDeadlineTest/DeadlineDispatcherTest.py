@@ -394,7 +394,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                     GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
                 )
 
-    def testOverrideJob(self):
+    def testOverrideFrame(self):
         #   n1
         #   |
         #   n2
