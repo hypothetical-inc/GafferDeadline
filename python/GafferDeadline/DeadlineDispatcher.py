@@ -77,26 +77,24 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                             it depending on batch and context layout. A DeadlineJob is defined by
                             the combination of Gaffer TaskNode and Context.
         Gaffer Job = set of Deadline Jobs (could be considered a Deadline Batch)
+
         Use DeadlineJob, DeadlineTask, etc. to denote Deadline terminology and plain Batch, Job,
-                            etc. to denote Gaffer terminology.
+        etc. to denote Gaffer terminology.
 
         Batches can have dependencies completely independent of frame numbers. First
         walk through the batch tree to build up a set of GafferDeadlineJob objects with
-                            GafferDeadlineTask objects corresponding to the batches.
+        GafferDeadlineTask objects corresponding to the batches.
 
         When all tasks are created, go back through the tree to setup dependencies between tasks.
-                            Task dependencies may be different
-        from Batch dependencies because batches may have been split to accommodate Deadline's
-                            sequential frame task requirement.
+        Task dependencies may be different from Batch dependencies because batches may have been
+        split to accommodate Deadline's sequential frame task requirement.
 
         With dependencies set, start at the leaf nodes of the task tree (no upstream DeadlineJobs)
-                            and submit those first. That way
-        the Deadline Job ID can be stored and used by dependent jobs to set their dependencies
-                            correctly.
+        and submit those first. That way the Deadline Job ID can be stored and used by dependent
+        jobs to set their dependencies correctly.
 
         To be compatible with Deadline's ExtraInfoKeyValue system, dependencies are reformatted at
-                            submission as
-        task:jobDependencyId=taskDependencyNumber
+        submission as task:jobDependencyId=taskDependencyNumber
         '''
         self._deadlineJobs = []
         IECore.Log.info("Beginning Deadline submission")
