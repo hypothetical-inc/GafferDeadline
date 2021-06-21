@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/ericmehl/GafferDeadline.svg?branch=master)](https://travis-ci.com/ericmehl/GafferDeadline)
-[![Build status](https://ci.appveyor.com/api/projects/status/yxwvuof88k1ycixa/branch/master?svg=true)](https://ci.appveyor.com/project/Hypothetical/gafferdeadline/branch/master)
 # GafferDeadline #
 Deadline Dispatcher for Gaffer. There are three components - the Gaffer dispatcher, Deadline plugin and Python dependency script called by Deadline to check for task dependencies getting released.
 
