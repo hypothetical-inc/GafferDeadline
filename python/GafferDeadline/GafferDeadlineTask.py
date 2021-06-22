@@ -34,6 +34,8 @@
 #
 ##########################################################################
 
+import IECore
+
 import GafferDispatch
 
 
@@ -51,14 +53,30 @@ class GafferDeadlineTask(object):
         self.setEndFrame(endFrame)
         self.setTaskNumber(taskNumber)
 
-        if self._startFrame is None and self.getGafferBatch() is not None and len(
+        if self.getStartFrame() is None and self.getGafferBatch() is not None and len(
             self.getGafferBatch().frames()
         ) > 0:
-            self.setStartFrame(gafferBatch.frames()[0])
-        if self._endFrame is None and self.getGafferBatch() is not None and len(
+            self.setStartFrame(self.getGafferBatch.frames()[0])
+        if self.getEndFrame() is None and self.getGafferBatch() is not None and len(
             self.getGafferBatch().frames()
         ) > 0:
-            self.setEndFrame(gafferBatch.frames()[len(gafferBatch.frames()) - 1])
+            self.setEndFrame(self.getGafferBatch.frames()[-1])
+
+    def __hash__(self):
+        h = IECore.MurmurHash()
+
+        # hash the batch as Gaffer does in Dispatcher::Batcher::batchHash
+        b = self.getGafferBatch()
+        h.append(hash(b.plug()))
+        for c in b.context().keys():
+            if c != "frame":
+                h.append(b.context()[c])
+
+        h.append(self.getStartFrame() if self.getStartFrame() is not None else 1)
+        h.append(self.getEndFrame() if self.getEndFrame() is not None else 1)
+        h.append(self.getTaskNumber())
+
+        return hash(h)
 
     def setTaskNumber(self, taskNumber):
         assert(type(taskNumber) == int)

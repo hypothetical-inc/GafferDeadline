@@ -39,10 +39,12 @@ import tempfile
 
 import IECore
 
+import Gaffer
 import GafferDispatch
 
 from . import DeadlineTools
 from .GafferDeadlineTask import GafferDeadlineTask
+from .GafferDeadlineDependency import GafferDeadlineDependency
 
 
 class GafferDeadlineJob(object):
@@ -53,21 +55,20 @@ class GafferDeadlineJob(object):
     """
 
     class DeadlineDependencyType(object):
-        none = 0
-        jobToJob = 1
-        frameToFrame = 2
-        scripted = 3
+        _None = 0
+        JobToJob = 1
+        FrameToFrame = 2
+        Scripted = 3
 
     def __init__(
         self,
+        gafferNode,
         jobProperties={},
         pluginProperties={},
         auxFiles=[],
         deadlineSettings={},
         environmentVariables={},
-        gafferNode=None,
-        jobContext={},
-        chunkSize=1
+        jobContext=Gaffer.Context()
     ):
         self._dependencyType = None
         self._frameDependencyOffsetStart = 0
@@ -84,13 +85,38 @@ class GafferDeadlineJob(object):
         self._jobId = None
         self._parentJobs = []
         self._tasks = []
-        # dependencies are of the dictionary form
-        # {
-        #   "dependencyJob": <GafferDeadlineJob>,
-        #   "dependentTask": <GafferDeadlineTask for this job>,
-        #   "dependencyTask": <GafferDeadlineTask for parent job>
-        # }
-        self._dependencies = []
+
+    def __hash__(self):
+        h = IECore.MurmurHash()
+        for k, v in self.getJobProperties().items():
+            h.append(k)
+            h.append(v)
+
+        for k, v in self.getPluginProperties().items():
+            h.append(k)
+            h.append(v)
+
+        for f in self.getAuxFiles():
+            h.append(f)
+
+        for k, v in self._deadlineSettings.items():
+            h.append(k)
+            h.append(v)
+
+        for k, v in self._environmentVariables.items():
+            h.append(k)
+            h.append(v)
+
+        h.append(self._frameDependencyOffsetStart)
+        h.append(self._frameDependencyOffsetEnd)
+
+        # We don't need to hash the whole node with context because Gaffer takes care of
+        # setting the context for the task. We can execute the same Deadline job with
+        # different contexts.
+        if self.getGafferNode():
+            h.append(self.getGafferNode().getName())
+
+        return hash(h)
 
     def setJobProperties(self, newProperties):
         """ The only parameter Deadline requires is Plugin and because we are
@@ -144,14 +170,24 @@ class GafferDeadlineJob(object):
     def addParentJob(self, parentJob):
         if type(parentJob) != GafferDeadlineJob:
             raise ValueError("Parent job must be a GafferDeadlineJob")
-        if parentJob not in self._parentJobs:
+        if parentJob not in self.getParentJobs():
             self._parentJobs.append(parentJob)
 
     def getParentJobs(self):
         return self._parentJobs
 
+    def getEffectiveParentJobs(self):
+        jobs = []
+        for j in self.getParentJobs():
+            if not GafferDeadlineJob.isControlTask(j.getGafferNode()):
+                jobs.append(j)
+            else:
+                jobs += j.getEffectiveParentJobs()
+
+        return jobs
+
     def getParentJobByGafferNode(self, gafferNode):
-        for job in self._parentJobs:
+        for job in self.getParentJobs():
             if job.getGafferNode() == gafferNode:
                 return job
 
@@ -194,7 +230,7 @@ class GafferDeadlineJob(object):
         else:
             # Control nodes like TaskList have no frames but do need tasks created to pass
             # through dependencies
-            self._tasks.append(GafferDeadlineTask(newBatch, len(self.getTasks())))
+            self._tasks.append(GafferDeadlineTask(newBatch, 0))
 
     def getTasksForBatch(self, batch):
         taskList = [t for t in self.getTasks() if t.getGafferBatch() == batch]
@@ -203,37 +239,58 @@ class GafferDeadlineJob(object):
     def getTasks(self):
         return self._tasks
 
-    def buildTaskDependencies(self):
-        """ Link tasks to each other via their batch. Batches come from Gaffer and are what
-        ultimately need to be linked. But there may be more than one task for a particular batch.
-        """
-        for task in self.getTasks():
-            for job in self._parentJobs:
-                for parentBatch in task.getGafferBatch().preTasks():
-                    dependencyTasks = job.getTasksForBatch(parentBatch)
-                    for dep in dependencyTasks:
-                        # Control tasks should have their frames set to the upstream frame range
-                        # effectively making them frame-frame dependent
-                        if task.getStartFrame() is None or task.getEndFrame() is None:
-                            task.setFrameRange(dep.getStartFrame(), dep.getEndFrame())
-                        depDict = {
-                            "dependencyJob": job,
-                            "dependentTask": task,
-                            "dependencyTask": dep
-                        }
-                        self._dependencies.append(depDict)
+    def __getParentBatches(self, batch):
+        # Return the dependencies from a specific node, passing through the upstream nodes
+        # if this is a control node.
+        batches = []
 
-    def removeOrphanTasks(self):
-        self._tasks = [
-            t for t in self.getTasks() if (
-                t.getStartFrame() is not None or
-                t.getEndFrame() is not None or
-                len(t.getGafferBatch().preTasks()) > 0
-            )
-        ]
+        effectiveParentJobs = self.getEffectiveParentJobs()
+
+        for b in batch.preTasks():
+            if not GafferDeadlineJob.isControlTask(b.node()):
+                job = None
+                for j in effectiveParentJobs:
+                    if j.getGafferNode() == b.node():
+                        job = j
+                if job is not None:
+                    batches.append((job, b))
+            else:
+                batches += self.__getParentBatches(b)
+
+        return batches
 
     def getDependencies(self):
-        return self._dependencies
+        """ Link tasks to each other via their batch. Batches come from Gaffer and are what
+        ultimately need to be linked. But there may be more than one task for a particular batch.
+
+        If any of our parents are control tasks, we inherit their dependencies because they
+        will not be submitted to Deadline.
+        """
+
+        effectiveParentJobs = []
+
+        deps = {}
+        for task in self.getTasks():
+            for parentJob, parentBatch in self.__getParentBatches(task.getGafferBatch()):
+                upstreamTasks = parentJob.getTasksForBatch(parentBatch)
+                for dep in upstreamTasks:
+                    deps[hash(task) + hash(dep) + hash(self)] = GafferDeadlineDependency(
+                        parentJob,
+                        task,
+                        dep
+                    )
+
+        return deps
+
+    @staticmethod
+    def isControlTask(node):
+        return type(node) in [
+            GafferDispatch.FrameMask,
+            GafferDispatch.TaskList,
+            GafferDispatch.TaskSwitch,
+            GafferDispatch.Wedge,
+            GafferDispatch.TaskContextVariables,  # this node is deprecated and will be removed
+        ]
 
     def submitJob(self, jobFilePath=None, pluginFilePath=None):
         """ Submit the job to Deadline.
@@ -241,7 +298,7 @@ class GafferDeadlineJob(object):
         will be None if submission failed. deadlineStatusOutput can be used to help figure out
         why it failed.
 
-        Check to make sure that all auxiliary files exist, otherwise submission will fail
+        Check to make sure that all auxiliary files exist, otherwise submission will fail.
         Job and plugin information are stored in temporary files that are deleted after submission.
         Windows has a problem with allowing Python to hide the temp file from the OS,
         so the delete=False argument must be passed.

@@ -41,57 +41,63 @@ import Gaffer
 import GafferTest
 import GafferDeadline
 import GafferDispatch
+import GafferDispatchTest
 
 
 class GafferDeadlineJobTest(GafferTest.TestCase):
     def testJobProperties(self):
-        dj = GafferDeadline.GafferDeadlineJob()
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
         self.assertIn("Plugin", dj.getJobProperties())
         dj.setJobProperties({"testProp": "testVal"})
         self.assertIn("Plugin", dj.getJobProperties())
         self.assertIn("testProp", dj.getJobProperties())
         self.assertEqual(dj.getJobProperties()["testProp"], "testVal")
 
-        dj = GafferDeadline.GafferDeadlineJob(jobProperties={"testProp2": "testVal2"})
+        dj = GafferDeadline.GafferDeadlineJob(
+            GafferDispatchTest.LoggingTaskNode(),
+            jobProperties={"testProp2": "testVal2"}
+        )
         self.assertIn("Plugin", dj.getJobProperties())
         self.assertIn("testProp2", dj.getJobProperties())
         self.assertEqual(dj.getJobProperties()["testProp2"], "testVal2")
 
     def testPluginProperties(self):
-        dj = GafferDeadline.GafferDeadlineJob()
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
         self.assertEqual(dj.getPluginProperties(), {})
         dj.setPluginProperties({"testProp": "testVal"})
         self.assertIn("testProp", dj.getPluginProperties())
         self.assertEqual(dj.getPluginProperties()["testProp"], "testVal")
 
-        dj = GafferDeadline.GafferDeadlineJob(pluginProperties={"testProp2": "testVal2"})
+        dj = GafferDeadline.GafferDeadlineJob(
+            GafferDispatchTest.LoggingTaskNode(),
+            pluginProperties={"testProp2": "testVal2"}
+        )
         self.assertIn("testProp2", dj.getPluginProperties())
         self.assertEqual(dj.getPluginProperties()["testProp2"], "testVal2")
 
     def testAuxFiles(self):
-        dj = GafferDeadline.GafferDeadlineJob()
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
         self.assertEqual(dj.getAuxFiles(), [])
         dj.setAuxFiles(["file1", "file2"])
         self.assertEqual(len(dj.getAuxFiles()), 2)
         self.assertIn("file1", dj.getAuxFiles())
 
-        dj = GafferDeadline.GafferDeadlineJob(auxFiles=["file3", "file4"])
+        dj = GafferDeadline.GafferDeadlineJob(
+            GafferDispatchTest.LoggingTaskNode(),
+            auxFiles=["file3", "file4"]
+        )
         self.assertEqual(len(dj.getAuxFiles()), 2)
         self.assertIn("file3", dj.getAuxFiles())
 
     def testGafferNode(self):
         taskNode = GafferDispatch.TaskNode()
-        dj = GafferDeadline.GafferDeadlineJob()
-        dj.setGafferNode(taskNode)
-        self.assertEqual(dj.getGafferNode(), taskNode)
-
-        dj = GafferDeadline.GafferDeadlineJob(gafferNode=taskNode)
+        dj = GafferDeadline.GafferDeadlineJob(taskNode)
         self.assertEqual(dj.getGafferNode(), taskNode)
 
         self.assertRaises(ValueError, dj.setGafferNode, "bad value")
 
     def testAddBatch(self):
-        dj = GafferDeadline.GafferDeadlineJob()
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
         dj.addBatch(None, [1, 2, 3, 4, 5])
         dj.addBatch(None, [6, 7, 8, 9, 10])
         assert(dj._tasks[0].getStartFrame() == 1)
@@ -99,7 +105,7 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
         assert(dj._tasks[1].getStartFrame() == 6)
         assert(dj._tasks[1].getEndFrame() == 10)
 
-        dj = GafferDeadline.GafferDeadlineJob()
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
         dj.addBatch(None, [1, 2, 3, 7, 8, 9, 100.0, 101.0, 102.0])
         assert(len(dj._tasks) == 3)
         assert(dj._tasks[0].getTaskNumber() == 0)
@@ -113,16 +119,16 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
         assert(dj._tasks[2].getEndFrame() == 102)
 
     def testContext(self):
-        dj = GafferDeadline.GafferDeadlineJob()
-        self.assertEqual(dj.getContext(), {})
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
+        self.assertEqual(dj.getContext(), Gaffer.Context())
         dj.setContext({"test": "value"})
         self.assertEqual(dj.getContext(), {"test": "value"})
 
     def testParentJob(self):
-        djc = GafferDeadline.GafferDeadlineJob()
-        djp = GafferDeadline.GafferDeadlineJob()
         taskNode = GafferDispatch.TaskNode()
         taskNode2 = GafferDispatch.TaskNode()
+        djc = GafferDeadline.GafferDeadlineJob(taskNode)
+        djp = GafferDeadline.GafferDeadlineJob(taskNode2)
         djc.addParentJob(djp)
         self.assertIn(djp, djc.getParentJobs())
         djp.setGafferNode(taskNode)
