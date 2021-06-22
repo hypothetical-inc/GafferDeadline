@@ -34,10 +34,21 @@
 #
 ##########################################################################
 
-from .DeadlineDispatcher import DeadlineDispatcher
-from .GafferDeadlineJob import GafferDeadlineJob
-from .GafferDeadlineTask import GafferDeadlineTask
-from .GafferDeadlineDependency import GafferDeadlineDependency
-from .DeadlineTools import *
+class GafferDeadlineDependency(object):
+    """
+    Holds a single dependency for Deadline.
+    """
 
-__import__("IECore").loadConfig("GAFFER_STARTUP_PATHS", {}, subdirectory="GafferDeadline")
+    def __init__(self, deadlineJob, deadlineTask, upstreamDeadlineTask):
+        self._deadlineJob = deadlineJob
+        self._deadlineTask = deadlineTask
+        self._upstreamDeadlineTask = upstreamDeadlineTask
+
+    def getDeadlineJob(self):
+        return self._deadlineJob
+
+    def getDeadlineTask(self):
+        return self._deadlineTask
+
+    def getUpstreamDeadlineTask(self):
+        return self._upstreamDeadlineTask
