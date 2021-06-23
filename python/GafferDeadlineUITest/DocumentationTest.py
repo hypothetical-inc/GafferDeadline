@@ -42,8 +42,8 @@ import Gaffer
 import GafferTest
 import GafferUI
 import GafferUITest
-
 import GafferDispatch
+
 import GafferDeadline
 import GafferDeadlineUI
 
@@ -53,10 +53,14 @@ class DocumentationTest(GafferUITest.TestCase):
     def test(self):
 
         self.maxDiff = None
-        self.assertNodesAreDocumented(GafferDeadline, additionalTerminalPlugTypes = (GafferDispatch.Dispatcher,))
+        self.assertNodesAreDocumented(
+            GafferDeadline,
+            additionalTerminalPlugTypes=(GafferDispatch.Dispatcher,)
+        )
         # Also test GafferDispatch because we add plugs to
         # TaskNodes.
         self.assertNodesAreDocumented(GafferDispatch.TaskNode)
+
 
 if __name__ == "__main__":
     unittest.main()

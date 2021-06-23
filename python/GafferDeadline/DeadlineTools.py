@@ -44,47 +44,56 @@ import IECore
 def runDeadlineCommand(arguments, hideWindow=True):
     if "DEADLINE_PATH" not in os.environ:
         raise RuntimeError("DEADLINE_PATH must be set to the Deadline executable path")
-    executable_suffix = ".exe" if os.name == "nt" else ""
-    deadline_command = os.path.join(os.environ['DEADLINE_PATH'], "deadlinecommand" + executable_suffix)
+    executableSuffix = ".exe" if os.name == "nt" else ""
+    deadlineCommand = os.path.join(
+        os.environ['DEADLINE_PATH'],
+        "deadlinecommand" + executableSuffix
+    )
 
-    arguments = [deadline_command] + arguments
+    arguments = [deadlineCommand] + arguments
 
     p = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     output, err = p.communicate()
 
     if err:
-        raise RuntimeError("Error running Deadline command {}: {}".format(" ".join(arguments), output))
+        raise RuntimeError(
+            "Error running Deadline command {}: {}".format(
+                " ".join(arguments),
+                output
+            )
+        )
 
     return output
 
 
-def submitJob(job_info_file, plugin_info_file, aux_files):
-    submission_results = runDeadlineCommand([job_info_file, plugin_info_file] + aux_files)
+def submitJob(jobInfoFile, pluginInfoFile, auxFiles):
+    submissionResults = runDeadlineCommand([jobInfoFile, pluginInfoFile] + auxFiles)
 
-    for line in submission_results.split():
+    for i in submissionResults.split():
+        line = i.decode()
         if line.startswith("JobID="):
             jobID = line.replace("JobID=", "").strip()
-            return (jobID, submission_results)
+            return (jobID, submissionResults)
 
-    return (None, submission_results)
+    return (None, submissionResults)
 
 
 def getMachineList():
     output = runDeadlineCommand(["GetSlaveNames"])
-    return output.split()
+    return [i.decode() for i in output.split()]
 
 
 def getLimitGroups():
     output = runDeadlineCommand(["GetLimitGroups"])
-    return re.findall(r'Name=(.*)', output)
+    return re.findall(r'Name=(.*)', output.decode())
 
 
 def getGroups():
     output = runDeadlineCommand(["GetSubmissionInfo", "groups"])
-    return output.split()[1:]    # remove [Groups] header
+    return [i.decode() for i in output.split()[1:]]    # remove [Groups] header
 
 
 def getPools():
     output = runDeadlineCommand(["GetSubmissionInfo", "pools"])
-    return output.split()[1:]    # remove [Groups] header
+    return [i.decode() for i in output.split()[1:]]    # remove [Groups] header

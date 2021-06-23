@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/ericmehl/GafferDeadline.svg?branch=master)](https://travis-ci.com/ericmehl/GafferDeadline)
-[![Build status](https://ci.appveyor.com/api/projects/status/yxwvuof88k1ycixa/branch/master?svg=true)](https://ci.appveyor.com/project/Hypothetical/gafferdeadline/branch/master)
 # GafferDeadline #
 Deadline Dispatcher for Gaffer. There are three components - the Gaffer dispatcher, Deadline plugin and Python dependency script called by Deadline to check for task dependencies getting released.
 
@@ -45,12 +43,12 @@ GafferDeadline sets the environment variable CPUTHREAD the Deadline Worker's ren
 ## Running Unit Tests ##
 You don't need to run the unit tests for normal use of GafferDeadline, but if you want to make customizations it is recommended that you add unit tests as appropriate and run the existing tests to ensure compatibility.
 
-To run the unit tests, you need to have an installation of Gaffer and have your Python environment setup to point to that installation. The easiest way to do that is to use the included gaffer_env (Linux) and gaffer_env.bat (Windows) files to setup the environment first. Then you can use regular Python unit test runners to run tests.
-
-More specifically:
-1. PATH environment variable needs to include the gaffer/bin, gaffer/lib (on Windows) and gaffer/python directories.
-2. PYTHONPATH environment variable needs to include the gaffer/python directory and the GafferDeadline/python directory.
-3. On Linux the LD_LIBRARY_PATH needs to be set to the gaffer/lib directory.
+To run the unit tests, you need to have an installation of Gaffer.
+- All OS : set the GAFFER_EXTENSION_PATHS environment variable to the directory for GafferDeadline.
+- Linux : set the GAFFER_ROOT environment variable to your Gaffer installation directory. From the GAFFER_ROOT/bin directory, run 
+        ./gaffer test GafferDeadlineTest GafferDeadlineUITest
+- Windows : You don't need to set the GAFFER_ROOT environment variable. From your Gaffer installation "bin" subdirectory, 
+        run gaffer.bat test GafferDeadlineTest GafferDeadlineUITest
 
 There is also a Visual Studio Code environment included that may be helpful.
 

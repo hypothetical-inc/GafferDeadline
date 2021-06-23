@@ -120,40 +120,46 @@ Gaffer.Metadata.registerNode(
         "dispatcher.deadline.priority": [
             "description",
             """
-            A job can have a numeric priority ranging from 0 to 100, where 0 is the lowest priority and 100 is the highest.
+            A job can have a numeric priority ranging from 0 to 100, where 0 is the lowest
+            priority and 100 is the highest.
             """,
         ],
         "dispatcher.deadline.taskTimeout": [
             "description",
             """
-            The number of minutes a slave has to render a task for this job before it requeues it. Specify 0 for no timeout.
+            The number of minutes a slave has to render a task for this job before it requeues it.
+            Specify 0 for no timeout.
             """,
         ],
         "dispatcher.deadline.enableAutoTimeout": [
             "description",
             """
-            If the Auto Task Timeout is properly configured in the repository options then enabling this will allow a task timeout
-            to be automatically calculated based on render times for previous frames of the job.
+            If the Auto Task Timeout is properly configured in the repository options then
+            enabling this will allow a task timeout to be automatically calculated based on render
+            times for previous frames of the job.
             """,
         ],
         "dispatcher.deadline.concurrentTasks": [
             "description",
             """
-            The number of tasks that can render concurrently on a single Slave. This is useful if the rendering application only
+            The number of tasks that can render concurrently on a single Slave. This is useful if
+            the rendering application only
             uses one thread to render and your Slaves have multiple CPUs.
             """,
         ],
         "dispatcher.deadline.limitToSlaveLimit": [
             "description",
             """
-            If you limit the tasks to a Slave's task limit, then by default, the Slave won't dequeue more tasks then it has CPUs.
+            If you limit the tasks to a Slave's task limit, then by default, the Slave won't
+            dequeue more tasks then it has CPUs.
             This task limit can be overridden for individual Slaves by an administrator.
             """,
         ],
         "dispatcher.deadline.machineLimit": [
             "description",
             """
-            Use the Machine Limit to specify the maximum number of machines that can render your job at one time.
+            Use the Machine Limit to specify the maximum number of machines that can render your
+            job at one time.
             Specify 0 for no limit.
             """,
         ],
@@ -206,8 +212,9 @@ Gaffer.Metadata.registerNode(
         "dispatcher.deadline.dependencyMode": [
             "description",
             """
-            Determine how downstream nodes that depend on this node will be handled. If set to auto, 
-            the dispatcher will attempt to determine the best mode, falling back to scripted dependency checking.
+            Determine how downstream nodes that depend on this node will be handled. If set to
+            auto, the dispatcher will attempt to determine the best mode, falling back to scripted
+            dependency checking.
             """,
             "preset:Auto", "Auto",
             "preset:Full Job", "Job",
@@ -222,21 +229,21 @@ Gaffer.Metadata.registerNode(
         "dispatcher.deadline.auxFiles": [
             "description",
             """
-            A list of additional files to be included with the Deadline submission as auxiliary files.
-            The submitter will upload them to the Deadline repository and Workers will download the files
-            to their local job directory. An environment variable AUXFILEDIRECTORY is set by Deadline
-            and can be referenced in Gaffer scripts using standard environment variable substitution such as
-            ${AUXFILEDIRECTORY}/file.exr
+            A list of additional files to be included with the Deadline submission as auxiliary
+            files. The submitter will upload them to the Deadline repository and Workers will
+            download the files to their local job directory. An environment variable
+            AUXFILEDIRECTORY is set by Deadline and can be referenced in Gaffer scripts using
+            standard environment variable substitution such as ${AUXFILEDIRECTORY}/file.exr
             """,
             "plugValueWidget:type", "GafferUI.FileSystemPathVectorDataPlugValueWidget",
         ],
         "dispatcher.deadline.deadlineSettings": [
             "description",
             """
-            A list of additional Deadline settings for the dispatched job. These variables are set after
-            all other settings. Adding a variable here of "Name", for example, will override the default
-            job name. A list of available settings can be found on the Manual Submission page of the
-            Deadline documentation.
+            A list of additional Deadline settings for the dispatched job. These variables are set
+            after all other settings. Adding a variable here of "Name", for example, will override
+            the default job name. A list of available settings can be found on the Manual
+            Submission page of the Deadline documentation.
             """,
             "layout:section", "Deadline Settings",
         ],
