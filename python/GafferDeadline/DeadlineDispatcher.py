@@ -133,6 +133,14 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             self.__submitDeadlineJob(rootJob, dispatchData)
 
     def __buildDeadlineJobWalk(self, batch, dispatchData):
+        if (
+            GafferDeadlineJob.isControlTask(batch.node()) and
+            batch.node()["dispatcher"]["batchSize"].getValue() > 1
+        ):
+            raise RuntimeError(            
+                "No-Op node {} has a batch size greater than 1.".format(batch.node().getName())
+            )
+
         if batch.blindData().get("deadlineDispatcher:visited"):
             return self.__getGafferDeadlineJob(batch.node(), batch.context())
 
