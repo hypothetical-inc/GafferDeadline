@@ -652,12 +652,12 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["n4"]["dispatcher"]["batchSize"].setValue(1)
 
         s["t1"] = GafferDispatch.TaskList()
-        s["t1"]["dispatcher"]["batchSize"].setValue(10)
+        s["t1"]["dispatcher"]["batchSize"].setValue(1)
         s["t1"]["preTasks"][0].setInput(s["n2"]["task"])
         s["t1"]["preTasks"][1].setInput(s["n3"]["task"])
 
         s["t2"] = GafferDispatch.TaskList()
-        s["t2"]["dispatcher"]["batchSize"].setValue(8)
+        s["t2"]["dispatcher"]["batchSize"].setValue(1)
         s["t2"]["preTasks"][0].setInput(s["n4"]["task"])
         s["t2"]["preTasks"][1].setInput(s["t1"]["task"])
 
@@ -1048,6 +1048,41 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             if j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 10)
+
+    def testNoOpBatch(self):
+        #    n1
+        #    |
+        #    t1
+        #    |
+        #    n2
+        s = Gaffer.ScriptNode()
+
+        s["n1"] = GafferDispatchTest.LoggingTaskNode()
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
+
+        s["t1"] = GafferDispatch.TaskList()
+        s["t1"]["dispatcher"]["batchSize"].setValue(10)
+        s["t1"]["preTasks"][0].setInput(s["n1"]["task"])
+
+        s["n2"] = GafferDispatchTest.LoggingTaskNode()
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
+        s["n2"]["preTasks"][0].setInput(s["t1"]["task"])
+
+        dispatcher = self.__dispatcher()
+        dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
+        dispatcher["frameRange"].setValue("1-50")
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            self.assertRaises(RuntimeError, dispatcher.dispatch, [s["n2"]])
 
 
 if __name__ == "__main__":
