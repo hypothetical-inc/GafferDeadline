@@ -38,6 +38,8 @@ import os
 import unittest
 from unittest import mock
 
+import IECore
+
 import Gaffer
 import GafferTest
 import GafferDispatch
@@ -69,6 +71,18 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         dispatcher.dispatch(nodes)
 
         return jobs
+
+    def __debugPrintDependencies(self, dependencies):
+        for d in dependencies.values():
+            print(
+                "{}-{} ->{}:{}-{}".format(
+                    d.getDeadlineTask().getStartFrame(),
+                    d.getDeadlineTask().getEndFrame(),
+                    d.getDeadlineJob().getGafferNode().getName(),
+                    d.getUpstreamDeadlineTask().getStartFrame(),
+                    d.getUpstreamDeadlineTask().getEndFrame()
+                )
+            )
 
     def testPreSpoolSignal(self):
         s = Gaffer.ScriptNode()
@@ -251,49 +265,6 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(len(jobs[-1].getParentJobs()[0].getParentJobs()), 1)
         self.assertEqual(len(jobs[-1].getParentJobs()[0].getParentJobs()[0].getParentJobs()), 0)
 
-    def testNoDependencies(self):
-        #   n1
-        #   |
-        #   n2
-
-        s = Gaffer.ScriptNode()
-
-        s["n1"] = GafferDispatchTest.LoggingTaskNode()
-        s["n1"]["frame"] = Gaffer.StringPlug(
-            defaultValue="${frame}",
-            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
-        )
-        s["n1"]["dispatcher"]["batchSize"].setValue(10)
-
-        s["n2"] = GafferDispatchTest.LoggingTaskNode()
-        s["n2"]["frame"] = Gaffer.StringPlug(
-            defaultValue="${frame}", flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
-        s["n2"]["dispatcher"]["batchSize"].setValue(13)
-        s["n2"]["preTasks"][0].setInput(s["n1"]["task"])
-
-        dispatcher = self.__dispatcher()
-        dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
-        dispatcher["frameRange"].setValue("1-50")
-
-        with mock.patch(
-            "GafferDeadline.DeadlineTools.submitJob",
-            return_value=("testID", "testMessage")
-        ):
-            jobs = self.__job([s["n2"]], dispatcher)
-
-        self.assertEqual(len(jobs), 2)
-        for j in jobs:
-            if j.getJobProperties()["Name"] == "n2":
-                self.assertEqual(len(j.getDependencies()), 8)
-                self.assertEqual(len(j.getTasks()), 4)
-            elif j.getJobProperties()["Name"] == "n1":
-                self.assertEqual(len(j.getDependencies()), 0)
-                self.assertEqual(len(j.getTasks()), 5)
-                self.assertEqual(
-                    j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
-                )
-
     def testOverrideNone(self):
         #   n1
         #   |
@@ -334,14 +305,14 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
                 )
 
     def testOverrideJob(self):
@@ -384,14 +355,14 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.jobToJob
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.JobToJob
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
                 )
 
     def testOverrideFrame(self):
@@ -430,18 +401,19 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(len(jobs), 2)
         for j in jobs:
             if j.getJobProperties()["Name"] == "n2":
+                # self.__debugPrintDependencies(j.getDependencies())
                 self.assertEqual(len(j.getDependencies()), 8)
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
                 )
 
     def testOverrideScript(self):
@@ -484,14 +456,14 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.Scripted
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 5)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
                 )
 
     def testSequence(self):
@@ -499,7 +471,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
 
         s["n"] = GafferDispatch.PythonCommand()
         s["n"]["command"] = Gaffer.StringPlug(
-            defaultValue="print(context.getFrame())",
+            defaultValue="for i in frames:\n\tcontext.setFrame(i)\n\tprint(context.getFrame())",
             flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
         )
         s["n"]["sequence"].setValue(True)
@@ -569,7 +541,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                 self.assertEqual(len(j.getTasks()), 5)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.none
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
                 )
 
     def testDependencies(self):
@@ -680,12 +652,12 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["n4"]["dispatcher"]["batchSize"].setValue(1)
 
         s["t1"] = GafferDispatch.TaskList()
-        s["t1"]["dispatcher"]["batchSize"].setValue(10)
+        s["t1"]["dispatcher"]["batchSize"].setValue(1)
         s["t1"]["preTasks"][0].setInput(s["n2"]["task"])
         s["t1"]["preTasks"][1].setInput(s["n3"]["task"])
 
         s["t2"] = GafferDispatch.TaskList()
-        s["t2"]["dispatcher"]["batchSize"].setValue(8)
+        s["t2"]["dispatcher"]["batchSize"].setValue(1)
         s["t2"]["preTasks"][0].setInput(s["n4"]["task"])
         s["t2"]["preTasks"][1].setInput(s["t1"]["task"])
 
@@ -699,14 +671,8 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         ):
             jobs = self.__job([s["t2"]], dispatcher)
 
-        self.assertEqual(len(jobs), 6)
+        self.assertEqual(len(jobs), 4)
         for j in jobs:
-            if j.getJobProperties()["Name"] == "t2":
-                self.assertEqual(len(j.getDependencies()), 60)
-                self.assertEqual(len(j.getTasks()), 7)
-            if j.getJobProperties()["Name"] == "t1":
-                self.assertEqual(len(j.getDependencies()), 56)
-                self.assertEqual(len(j.getTasks()), 5)
             if j.getJobProperties()["Name"] == "n4":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 50)
@@ -764,9 +730,16 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s["n4"]["preTasks"][0].setInput(s["n2"]["task"])
 
         s["t1"] = GafferDispatch.TaskList()
-        s["t1"]["dispatcher"]["batchSize"].setValue(10)
+        s["t1"]["dispatcher"]["batchSize"].setValue(1)
         s["t1"]["preTasks"][0].setInput(s["n4"]["task"])
         s["t1"]["preTasks"][1].setInput(s["n3"]["task"])
+
+        s["n5"] = GafferDispatchTest.LoggingTaskNode()
+        s["n5"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
+        s["n5"]["preTasks"][0].setInput(s["t1"]["task"])
 
         dispatcher = self.__dispatcher()
         dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
@@ -776,40 +749,44 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             "GafferDeadline.DeadlineTools.submitJob",
             return_value=("testID", "testMessage")
         ):
-            jobs = self.__job([s["t1"]], dispatcher)
+            jobs = self.__job([s["n5"]], dispatcher)
 
         self.assertEqual(len(jobs), 5)
         for j in jobs:
-            if j.getJobProperties()["Name"] == "n2":
+
+            if j.getJobProperties()["Name"] == "n1":
+                self.assertEqual(len(j.getDependencies()), 0)
+                self.assertEqual(len(j.getTasks()), 50)
+
+            elif j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
-            elif j.getJobProperties()["Name"] == "n1":
-                self.assertEqual(len(j.getDependencies()), 0)
-                self.assertEqual(len(j.getTasks()), 50)
             elif j.getJobProperties()["Name"] == "n3":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 1)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
             elif j.getJobProperties()["Name"] == "n4":
                 self.assertEqual(len(j.getDependencies()), 4)
                 self.assertEqual(len(j.getTasks()), 4)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
-            elif j.getJobProperties()["Name"] == "t1":
-                self.assertEqual(len(j.getDependencies()), 12)
-                self.assertEqual(len(j.getTasks()), 5)
+
+            elif j.getJobProperties()["Name"] == "n5":
+                # self.__debugPrintDependencies(j.getDependencies())
+                self.assertEqual(len(j.getDependencies()), 100)
+                self.assertEqual(len(j.getTasks()), 50)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
 
     def testFrameMask(self):
@@ -850,14 +827,14 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         ):
             jobs = self.__job([s["n2"]], dispatcher)
 
-        self.assertEqual(len(jobs), 3)
+        self.assertEqual(len(jobs), 2)
         for j in jobs:
             if j.getJobProperties()["Name"] == "n2":
-                self.assertEqual(len(j.getDependencies()), 50)
+                self.assertEqual(len(j.getDependencies()), 5)
                 self.assertEqual(len(j.getTasks()), 50)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.jobToJob
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
@@ -933,14 +910,14 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         ):
             jobs = self.__job([s["n2"]], dispatcher)
 
-        self.assertEqual(len(jobs), 3)
+        self.assertEqual(len(jobs), 2)
         for j in jobs:
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 50)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                 )
                 self.assertEqual(j._frameDependencyOffsetStart, 100)
                 self.assertEqual(j._frameDependencyOffsetEnd, 100)
@@ -1019,18 +996,93 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         ):
             jobs = self.__job([s["n2"]], dispatcher)
 
-        self.assertEqual(len(jobs), 3)
+        self.assertEqual(len(jobs), 2)
         for j in jobs:
             if j.getJobProperties()["Name"] == "n2":
                 self.assertEqual(len(j.getDependencies()), 50)
                 self.assertEqual(len(j.getTasks()), 50)
                 self.assertEqual(
                     j.getDependencyType(),
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.scripted
+                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.Scripted
                 )
             elif j.getJobProperties()["Name"] == "n1":
                 self.assertEqual(len(j.getDependencies()), 0)
                 self.assertEqual(len(j.getTasks()), 50)
+
+    def testControlTaskDependency(self):
+        #   n1 (LoggingTaskNode)
+        #   |
+        #   m1 (FrameMask)
+        #   |
+        #   w1 (Wedge)
+
+        s = Gaffer.ScriptNode()
+
+        s["n1"] = GafferDispatchTest.LoggingTaskNode()
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${wedge:value}.${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
+
+        s["m1"] = GafferDispatch.FrameMask()
+        s["m1"]["mask"].setValue("1-10")
+        s["m1"]["preTasks"][0].setInput(s["n1"]["task"])
+
+        s["w1"] = GafferDispatch.Wedge()
+        s["w1"]["mode"].setValue(int(GafferDispatch.Wedge.Mode.StringList))
+        s["w1"]["strings"].setValue(IECore.StringVectorData(["a", "b", "c"]))
+        s["w1"]["preTasks"][0].setInput(s["m1"]["task"])
+
+        dispatcher = self.__dispatcher()
+        dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
+        dispatcher["frameRange"].setValue("1-50")
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["w1"]], dispatcher)
+
+        self.assertEqual(len(jobs), 3)  # A LoggingTaskNode per Wedge entry
+        for j in jobs:
+            if j.getJobProperties()["Name"] == "n1":
+                self.assertEqual(len(j.getDependencies()), 0)
+                self.assertEqual(len(j.getTasks()), 10)
+
+    def testNoOpBatch(self):
+        #    n1
+        #    |
+        #    t1
+        #    |
+        #    n2
+        s = Gaffer.ScriptNode()
+
+        s["n1"] = GafferDispatchTest.LoggingTaskNode()
+        s["n1"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
+
+        s["t1"] = GafferDispatch.TaskList()
+        s["t1"]["dispatcher"]["batchSize"].setValue(10)
+        s["t1"]["preTasks"][0].setInput(s["n1"]["task"])
+
+        s["n2"] = GafferDispatchTest.LoggingTaskNode()
+        s["n2"]["frame"] = Gaffer.StringPlug(
+            defaultValue="${frame}",
+            flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+        )
+        s["n2"]["preTasks"][0].setInput(s["t1"]["task"])
+
+        dispatcher = self.__dispatcher()
+        dispatcher["framesMode"].setValue(dispatcher.FramesMode.CustomRange)
+        dispatcher["frameRange"].setValue("1-50")
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            self.assertRaises(RuntimeError, dispatcher.dispatch, [s["n2"]])
 
 
 if __name__ == "__main__":

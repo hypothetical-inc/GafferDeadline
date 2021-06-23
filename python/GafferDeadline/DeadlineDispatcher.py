@@ -118,8 +118,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             context.substitute(self["jobName"].getValue()) or "untitled"
         )
 
-        rootDeadlineJob = GafferDeadlineJob()
-        rootDeadlineJob.setGafferNode(rootBatch.node())
+        rootDeadlineJob = GafferDeadlineJob(rootBatch.node())
         rootDeadlineJob.setAuxFiles([dispatchData["scriptFile"]])
         self.__addGafferDeadlineJob(rootDeadlineJob)
         rootJobs = []
@@ -131,22 +130,23 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         rootJobs = list(set(rootJobs))
 
         for rootJob in rootJobs:
-            self.__buildDeadlineDependencyWalk(rootJob)
-            # Control jobs with nothing to control should be removed after the dependencies are
-            # set up. This mostly applies to FrameMask nodes where downstream nodes need to see
-            # tasks on the FrameMask to trigger Job-Job dependency mode, but those tasks should
-            # not be submitted to Deadline.
-            self.__removeOrphanTasksWalk(rootJob)
             self.__submitDeadlineJob(rootJob, dispatchData)
 
     def __buildDeadlineJobWalk(self, batch, dispatchData):
+        if (
+            GafferDeadlineJob.isControlTask(batch.node()) and
+            batch.node()["dispatcher"]["batchSize"].getValue() > 1
+        ):
+            raise RuntimeError(            
+                "No-Op node {} has a batch size greater than 1.".format(batch.node().getName())
+            )
+
         if batch.blindData().get("deadlineDispatcher:visited"):
             return self.__getGafferDeadlineJob(batch.node(), batch.context())
 
         deadlineJob = self.__getGafferDeadlineJob(batch.node(), batch.context())
         if not deadlineJob:
-            deadlineJob = GafferDeadlineJob()
-            deadlineJob.setGafferNode(batch.node())
+            deadlineJob = GafferDeadlineJob(batch.node())
             deadlineJob.setContext(batch.context())
             deadlineJob.setAuxFiles([dispatchData["scriptFile"]])
             self.__addGafferDeadlineJob(deadlineJob)
@@ -160,16 +160,6 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         batch.blindData()["deadlineDispatcher:visited"] = IECore.BoolData(True)
 
         return deadlineJob
-
-    def __buildDeadlineDependencyWalk(self, job):
-        for parentJob in job.getParentJobs():
-            self.__buildDeadlineDependencyWalk(parentJob)
-        job.buildTaskDependencies()
-
-    def __removeOrphanTasksWalk(self, job):
-        for parentJob in job.getParentJobs():
-            self.__removeOrphanTasksWalk(parentJob)
-        job.removeOrphanTasks()
 
     def __getGafferDeadlineJob(self, node, context):
         for j in self._deadlineJobs:
@@ -186,11 +176,10 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             self.__submitDeadlineJob(parentJob, dispatchData)
 
         gafferNode = deadlineJob.getGafferNode()
-        if (
-            gafferNode is None or
-            len(deadlineJob.getTasks()) == 0 or
-            len(deadlineJob.getTasks()) == 0
-        ):
+
+        # Don't submit command tasks, they pollute the Deadline Monitor and cause
+        # potentially lengthy delays in dequeuing tasks that do nothing.
+        if(GafferDeadlineJob.isControlTask(deadlineJob.getGafferNode())):
             return None
 
         # this job is already submitted if it has an ID
@@ -288,9 +277,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                             for job A runs. If the dependency start and end frame offsets don't
                             match, this has to be handled by a dependency script.
             """
-            depList = deadlineJob.getDependencies()
+            dependencies = deadlineJob.getDependencies().values()
 
-            if len(depList) > 0 and deadlinePlug["dependencyMode"].getValue() != "None":
+            if len(dependencies) > 0 and deadlinePlug["dependencyMode"].getValue() != "None":
                 jobDependent = False
                 frameDependent = False
                 simpleFrameOffset = True
@@ -300,39 +289,29 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     frameDependent = True
                 elif deadlinePlug["dependencyMode"].getValue() == "Auto":
                     jobDependent = False
-                    depJobs = [j["dependencyJob"] for j in depList]
-                    depJobs = list(set(depJobs))
-                    for dep in depList:
-                        if (
-                            dep["dependencyTask"].getStartFrame() is None or
-                            dep["dependencyTask"].getEndFrame() is None
-                        ):
-                            jobDependent = True
+                    dependencyJobs = [i.getDeadlineJob() for i in dependencies]
+                    dependencyJobs = list(set(dependencyJobs))
 
                     frameDependent = True
                     simpleFrameOffset = True
-                    if (
-                        len(depList) > 0 and
-                        depList[0]["dependencyTask"].getStartFrame() is not None and
-                        depList[0]["dependencyTask"].getEndFrame() is not None
-                    ):
+                    if (len(dependencies) > 0):
                         deadlineJob._frameDependencyOffsetStart = (
-                            depList[0]["dependencyTask"].getStartFrame() -
-                            depList[0]["dependentTask"].getStartFrame()
+                            list(dependencies)[0].getUpstreamDeadlineTask().getStartFrame() -
+                            list(dependencies)[0].getDeadlineTask().getStartFrame()
                         )
                         deadlineJob._frameDependencyOffsetEnd = (
-                            depList[0]["dependencyTask"].getEndFrame() -
-                            depList[0]["dependentTask"].getEndFrame()
+                            list(dependencies)[0].getUpstreamDeadlineTask().getEndFrame() -
+                            list(dependencies)[0].getDeadlineTask().getEndFrame()
                         )
 
-                        for depTask in depList:
+                        for d in dependencies:
                             newFrameOffsetStart = (
-                                depTask["dependencyTask"].getStartFrame() -
-                                depTask["dependentTask"].getStartFrame()
+                                d.getUpstreamDeadlineTask().getStartFrame() -
+                                d.getDeadlineTask().getStartFrame()
                             )
                             newFrameOffsetEnd = (
-                                depTask["dependencyTask"].getEndFrame() -
-                                depTask["dependentTask"].getEndFrame()
+                                d.getUpstreamDeadlineTask().getEndFrame() -
+                                d.getDeadlineTask().getEndFrame()
                             )
 
                             if (
@@ -344,38 +323,26 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         # If we can't just shift the frame start and end, we might still be able to
                         # use frame dependency with tasks of different frame lengths
                         if not simpleFrameOffset:
-                            depJobs = [j["dependencyJob"] for j in depList]
-                            depJobs = list(set(depJobs))
-                            for depJob in depJobs:
-                                depTasks = [
-                                        t["dependencyTask"] for t in depList if (
-                                            t["dependencyJob"] == depJob
-                                        )
+                            for j in dependencyJobs:
+                                dependencyTasks = [
+                                    t.getUpstreamDeadlineTask() for t in dependencies if (
+                                        t.getDeadlineJob() == j
+                                    )
                                 ]
-                                depFrames = []
-                                for t in depTasks:
-                                    if (
-                                        t.getStartFrame() is not None and
-                                        t.getEndFrame() is not None
-                                    ):
-                                        depFrames += range(t.getStartFrame(), t.getEndFrame() + 1)
-                                currentTasks = [
-                                        t["dependentTask"] for t in depList if (
-                                            t["dependencyJob"] == depJob
-                                        )
-                                ]
+                                dependencyFrames = []
+                                for t in dependencyTasks:
+                                    dependencyFrames += range(
+                                        t.getStartFrame(),
+                                        t.getEndFrame() + 1
+                                    )
                                 currentFrames = []
-                                for t in currentTasks:
-                                    if (
-                                        t.getStartFrame() is not None and
-                                        t.getEndFrame() is not None
-                                    ):
-                                        currentFrames += range(
-                                            t.getStartFrame(),
-                                            t.getEndFrame() + 1
-                                        )
+                                for t in deadlineJob.getTasks():
+                                    currentFrames += range(
+                                        t.getStartFrame(),
+                                        t.getEndFrame() + 1
+                                    )
                                 for f in currentFrames:
-                                    if f not in depFrames:
+                                    if f not in dependencyFrames:
                                         frameDependent = False
 
                     else:
@@ -385,7 +352,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     jobInfo.update(
                         {
                             "JobDependencies": ",".join(
-                                list(set([j["dependencyJob"].getJobID() for j in depList]))
+                                list(set([
+                                    d.getDeadlineJob().getJobID() for d in dependencies
+                                ]))
                             ),
                             "ResumeOnDeletedDependencies": True,
                         }
@@ -402,11 +371,11 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     if frameDependent:
                         jobInfo.update({"IsFrameDependent": True})
                         deadlineJob.setDependencyType(
-                            GafferDeadlineJob.DeadlineDependencyType.frameToFrame
+                            GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                         )
                     else:
                         deadlineJob.setDependencyType(
-                            GafferDeadlineJob.DeadlineDependencyType.jobToJob
+                            GafferDeadlineJob.DeadlineDependencyType.JobToJob
                         )
                 else:
                     jobInfo.update(
@@ -415,18 +384,21 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                             "IsFrameDependent": True,
                         }
                     )
-                    for i in range(0, len(depList)):
-                        depTask = depList[i]
+                    i = 0
+                    for d in dependencies:
                         jobInfo["ExtraInfoKeyValue{}".format(i)] = "{}:{}={}".format(
-                            int(depTask["dependentTask"].getTaskNumber()),
-                            depTask["dependencyJob"].getJobID(),
-                            depTask["dependencyTask"].getTaskNumber()
+                            int(d.getDeadlineTask().getTaskNumber()),
+                            d.getDeadlineJob().getJobID(),
+                            d.getUpstreamDeadlineTask().getTaskNumber()
                         )
+
+                        i += 1
+
                     deadlineJob.setDependencyType(
-                        GafferDeadlineJob.DeadlineDependencyType.scripted
+                        GafferDeadlineJob.DeadlineDependencyType.Scripted
                     )
             else:
-                deadlineJob.setDependencyType(GafferDeadlineJob.DeadlineDependencyType.none)
+                deadlineJob.setDependencyType(GafferDeadlineJob.DeadlineDependencyType._None)
 
             pluginInfo = {
                 "Script": os.path.split(dispatchData["scriptFile"])[-1],
