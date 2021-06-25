@@ -36,7 +36,11 @@
 
 import os
 import unittest
-from unittest import mock
+import sys
+if sys.version_info >= (3, 3):
+    from unittest import mock
+else:
+    import mock
 
 import IECore
 
