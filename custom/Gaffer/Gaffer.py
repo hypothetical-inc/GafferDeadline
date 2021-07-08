@@ -121,10 +121,10 @@ class GafferPlugin(DeadlinePlugin):
         tempSceneDirectory = self.CreateTempDirectory("thread" + str(self.GetThreadNumber()))
         tempSceneFilename = Path.Combine(tempSceneDirectory, Path.GetFileName(localScript))
 
-        with open(localScript) as inFile, open(tempSceneFilename, "w") as outFile:
+        with open(localScript, "r") as inFile, open(tempSceneFilename, "w") as outFile:
             for line in inFile:
-                newLine = RepositoryUtils.CheckPathMapping(line)
-                outFile.write(newLine)
+                newLine = RepositoryUtils.CheckPathMapping(line.decode("utf-8"))
+                outFile.write(newLine.encode("utf-8"))
         
         self._gafferScript = tempSceneFilename
 
