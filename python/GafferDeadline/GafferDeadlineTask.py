@@ -36,6 +36,7 @@
 
 import IECore
 
+import Gaffer
 import GafferDispatch
 
 
@@ -65,12 +66,12 @@ class GafferDeadlineTask(object):
     def __hash__(self):
         h = IECore.MurmurHash()
 
-        # hash the batch as Gaffer does in Dispatcher::Batcher::batchHash
+        # hash the batch without the frame number as Gaffer does in Dispatcher::Batcher::batchHash
         b = self.getGafferBatch()
         h.append(hash(b.plug()))
-        for c in b.context().keys():
-            if c != "frame":
-                h.append(b.context()[c])
+        c = Gaffer.Context(b.context())
+        c.remove("frame")
+        h.append(c.hash())
 
         h.append(self.getStartFrame() if self.getStartFrame() is not None else 1)
         h.append(self.getEndFrame() if self.getEndFrame() is not None else 1)

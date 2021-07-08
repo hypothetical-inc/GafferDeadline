@@ -44,6 +44,8 @@ else:
 
 import IECore
 
+import IECore
+
 import Gaffer
 import GafferTest
 import GafferDispatch
