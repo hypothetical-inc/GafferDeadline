@@ -105,7 +105,7 @@ Description=The path to the Gaffer 0.60.7.0 executable (gaffer.bat on Windows) f
 
 [Executable0_60_8_0]
 Type=multilinemultifilename
-Category=Gaffer 0.60.7.0 Executables
+Category=Gaffer 0.60.8.0 Executables
 CategoryOrder=0
 CategoryIndex=0
 Label=Gaffer 0.60.8.0 Render Executable
