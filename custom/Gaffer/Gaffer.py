@@ -90,7 +90,6 @@ class GafferPlugin(DeadlinePlugin):
 
         # Generic Gaffer progress and error
         self.AddStdoutHandlerCallback(".*Progress: (\d+)%.*").HandleCallback += self.HandleProgress
-        self.AddStdoutHandlerCallback(".*ERROR : .*").HandleCallback += self.HandleGafferError
 
         # Vray's ply2vrmesh prints out lines for each frame and also each voxel within the frame
         self.AddStdoutHandlerCallback(".*Subdividing frame ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshFrameProgress
