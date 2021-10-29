@@ -1,3 +1,7 @@
+# 0.56.0.1
+## Bugs Squished
+- Fixed error "This application failed to start because no Qt platform plugin could be initialized." when running `dispatch` app on a headless system.
+
 # 0.56.0.0
 
 ## New Features
