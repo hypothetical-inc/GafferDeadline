@@ -1,3 +1,6 @@
+# 0.56.1.0
+- Added Alfred style progress (commonly used by Houdini renderers) updates in the Deadline plugin.
+
 # 0.56.0.1
 ## Bugs Squished
 - Fixed error "This application failed to start because no Qt platform plugin could be initialized." when running `dispatch` app on a headless system.
