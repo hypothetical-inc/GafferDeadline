@@ -1,5 +1,7 @@
 # 0.56.1.0
+
 - Added Alfred style progress (commonly used by Houdini renderers) updates in the Deadline plugin.
+- Added support for Gaffer 0.61.1.2, 1.2.0.0a1 and 1.2.0.0a2. 
 
 # 0.56.0.1
 ## Bugs Squished
