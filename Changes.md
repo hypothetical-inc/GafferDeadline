@@ -3,6 +3,7 @@
 - Added Alfred style progress (commonly used by Houdini renderers) updates in the Deadline plugin.
 - Added support for Gaffer 0.61.1.2, 1.2.0.0a1 and 1.2.0.0a2.
 - Added the ability to use `pathlib.Path` objects in auxiliary files. This can be done, for example, in a prespool signal handler that modifies the jobs auxiliary files via `setAuxFiles()`.
+- DeadlineDispatcherTest : Removed support for Python 2.
 
 # 0.56.0.1
 ## Bugs Squished
