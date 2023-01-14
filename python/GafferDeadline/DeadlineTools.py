@@ -68,7 +68,9 @@ def runDeadlineCommand(arguments, hideWindow=True):
 
 
 def submitJob(jobInfoFile, pluginInfoFile, auxFiles):
-    submissionResults = runDeadlineCommand([jobInfoFile, pluginInfoFile] + auxFiles)
+    submissionResults = runDeadlineCommand(
+        [jobInfoFile, pluginInfoFile] + [str(f) for f in auxFiles]
+    )
 
     for i in submissionResults.split():
         line = i.decode()

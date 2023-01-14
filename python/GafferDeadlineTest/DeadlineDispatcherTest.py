@@ -36,11 +36,7 @@
 
 import os
 import unittest
-import sys
-if sys.version_info >= (3, 3):
-    from unittest import mock
-else:
-    import mock
+from unittest import mock
 
 import IECore
 
@@ -69,7 +65,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         def f(dispatcher, job):
             jobs.append(job)
 
-        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f)
+        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f, scoped=True)
 
         if dispatcher is None:
             dispatcher = self.__dispatcher()
@@ -99,7 +95,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         def f(dispatcher, job):
             spooled.append((dispatcher, job))
 
-        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f)
+        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f, scoped=True)
 
         dispatcher = self.__dispatcher()
         with mock.patch(
