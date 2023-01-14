@@ -69,7 +69,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         def f(dispatcher, job):
             jobs.append(job)
 
-        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f)
+        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f, scoped=True)
 
         if dispatcher is None:
             dispatcher = self.__dispatcher()
@@ -99,7 +99,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         def f(dispatcher, job):
             spooled.append((dispatcher, job))
 
-        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f)
+        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f, scoped=True)
 
         dispatcher = self.__dispatcher()
         with mock.patch(
