@@ -61,12 +61,14 @@ class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
 
         button = GafferUI.Button("...", hasFrame=True)
         self.__buttonClickedConnection = button.clickedSignal().connect(
-            Gaffer.WeakMethod(self.__buttonClicked)
+            Gaffer.WeakMethod(self.__buttonClicked),
+            scoped=True
         )
         self.__row.append(button)
 
         self.__editingFinishedConnection = listWidget.editingFinishedSignal().connect(
-            Gaffer.WeakMethod(self.__setPlugValue)
+            Gaffer.WeakMethod(self.__setPlugValue),
+            scoped=True
         )
 
         self._updateFromPlug()

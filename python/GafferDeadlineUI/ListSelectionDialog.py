@@ -64,11 +64,13 @@ class ListSelectionDialog(GafferUI.Dialogue):
 
         self.__cancelButton = self._addButton(cancelLabel)
         self.__cancelButtonConnection = self.__cancelButton.clickedSignal().connect(
-            Gaffer.WeakMethod(self.__buttonClicked)
+            Gaffer.WeakMethod(self.__buttonClicked),
+            scoped=True
         )
         self.__confirmButton = self._addButton(confirmLabel)
         self.__confirmButtonConnection = self.__confirmButton.clickedSignal().connect(
-            Gaffer.WeakMethod(self.__buttonClicked)
+            Gaffer.WeakMethod(self.__buttonClicked),
+            scoped=True
         )
 
     def waitForSelection(self, **kw):
