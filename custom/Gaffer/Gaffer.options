@@ -58,3 +58,14 @@ Category=Gaffer Options
 Description=The context used during the execution. Note that the frames parameter will be used to vary the context frame entry.
 Required=false
 DisableIfBlank=false
+
+[Threads]
+Type=integer
+Minimum=0
+Label=Threads
+CategoryOrder=0
+Index=5
+Category=Gaffer Options
+Description=The number of threads Gaffer will use. Note that renderers and subprocesses launched by Gaffer may or may not respect this parameter. The actual value passed to Gaffer will be the lesser of this value and the number of CPU cores enabled by the Deadline Worker's CPU Affinity setting. If set to 0, this parameter is ignored.
+Required=false
+DisableIfBlank=false
