@@ -155,7 +155,15 @@ class GafferPlugin(DeadlinePlugin):
         frames = self.ReplacePaddedFrame(frames, "<(?i)ENDFRAME%([0-9]+)>", self.GetEndFrame())
         context = self.GetPluginInfoEntryWithDefault("Context", "")
 
-        arguments = "execute -script \"{}\"".format(script)
+        arguments = "execute"
+
+        threads = self.GetIntegerPluginInfoEntryWithDefault("Threads", 0)
+        if self.OverrideCpuAffinity():
+            threads = min(threads, len(self.CpuAffinity())) if threads != 0 else len(self.CpuAffinity())
+        if threads != 0:
+            arguments += " -threads {}".format(threads)
+
+        arguments += " -script \"{}\"".format(script)
         arguments += " -ignoreScriptLoadErrors" if ignoreErrors.lower() == "true" else ""
         arguments += " -nodes {}".format(nodes) if nodes != "" else ""
         arguments += " -frames {}".format(frames) if frames != "" else ""
@@ -186,14 +194,14 @@ class GafferPlugin(DeadlinePlugin):
     def HandleGafferError(self):
         self.FailRender(self.GetRegexMatch(0))
         self.UpdateProgress()
-     
+
     def HandlePly2VrmeshFrameProgress(self):
         self.currentFrame = float(self.GetRegexMatch(1)) - 1.0
         self.totalFrames = float(self.GetRegexMatch(2))
 
         self.SetProgress(self.currentFrame / self.totalFrames * 100)
         self.SetStatusMessage("Ply2Vrmesh: frame {}/{}".format(self.currentFrame, self.totalFrames))
-        
+
     def HandlePly2VrmeshVoxelProgress(self):
         currentVoxel = float(self.GetRegexMatch(1)) - 1.0
         totalVoxels = float(self.GetRegexMatch(2))

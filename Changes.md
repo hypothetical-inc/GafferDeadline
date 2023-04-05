@@ -1,3 +1,10 @@
+# 0.57.0.0
+
+- Added controls for Gaffer's `-threads` command line parameter.
+  - The GafferDeadline dispatcher plug `threads` can be used to control the thread count on a per job basis. If `threads` is set to 0, it will be ignored when executing the Deadline job.
+  - GafferDeadline will also recognize a Deadline Worker's `CpuAffinity` property, if set, and use the number of enabled CPUs as the thread count.
+  - If the `threads` plug is non-zero and a Worker has its `CpuAffinity` property enabled, Gaffer will use the lesser of the two values as its thread count.
+
 # 0.56.1.0
 
 - Added Alfred style progress (commonly used by Houdini renderers) updates in the Deadline plugin.

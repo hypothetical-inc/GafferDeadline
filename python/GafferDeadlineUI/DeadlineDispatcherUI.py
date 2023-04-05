@@ -147,6 +147,18 @@ Gaffer.Metadata.registerNode(
             uses one thread to render and your Slaves have multiple CPUs.
             """,
         ],
+        "dispatcher.deadline.threads": [
+            "description",
+            """
+            The number of threads Gaffer will use. Note that renderers and subprocesses launched
+            by Gaffer may or may not respect this parameter.
+
+            The actual value passed to Gaffer will be the lesser of this value and the number of
+            CPU cores enabled by the Deadline Worker's CPU Affinity setting.
+
+            If set to 0, this parameter is ignored.
+            """
+        ],
         "dispatcher.deadline.limitToSlaveLimit": [
             "description",
             """

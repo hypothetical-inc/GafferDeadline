@@ -406,6 +406,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 "IgnoreScriptLoadErrors": False,
                 "Nodes": gafferNode.relativeName(dispatchData["scriptNode"]),
                 "Frames": "<STARTFRAME>-<ENDFRAME>",
+                "Threads": deadlinePlug["threads"].getValue(),
             }
             scriptContext = dispatchData["scriptNode"].context()
             contextArgs = []
@@ -482,6 +483,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             minValue=1,
             maxValue=16
         )
+        parentPlug["deadline"]["threads"] = Gaffer.IntPlug(defaultValue=0, minValue=0)
         parentPlug["deadline"]["machineLimit"] = Gaffer.IntPlug(defaultValue=0, minValue=0)
         parentPlug["deadline"]["machineList"] = Gaffer.StringPlug()
         parentPlug["deadline"]["isBlackList"] = Gaffer.BoolPlug(defaultValue=False)
