@@ -68,23 +68,25 @@ class GafferDeadlineJob(object):
         auxFiles=[],
         deadlineSettings={},
         environmentVariables={},
-        jobContext=Gaffer.Context()
+        jobContext=Gaffer.Context(),
+        logLevel=""
     ):
         self._dependencyType = None
         self._frameDependencyOffsetStart = 0
         self._frameDependencyOffsetEnd = 0
-
-        self.setJobProperties(jobProperties)
-        self.setPluginProperties(pluginProperties)
-        self.setAuxFiles(auxFiles)
-        self.setGafferNode(gafferNode)
-        self.setContext(jobContext)
 
         self._deadlineSettings = deadlineSettings.copy()
         self._environmentVariables = environmentVariables.copy()
         self._jobId = None
         self._parentJobs = []
         self._tasks = []
+
+        self.setJobProperties(jobProperties)
+        self.setPluginProperties(pluginProperties)
+        self.setAuxFiles(auxFiles)
+        self.setGafferNode(gafferNode)
+        self.setContext(jobContext)
+        self.setLogLevel(logLevel)
 
     def __hash__(self):
         h = IECore.MurmurHash()
@@ -198,6 +200,12 @@ class GafferDeadlineJob(object):
 
     def appendDeadlineSetting(self, name, value):
         self._deadlineSettings[name] = value
+
+    def setLogLevel(self, value):
+        self._environmentVariables["IECORE_LOG_LEVEL"] = value
+
+    def getLogLevel(self):
+        return self._environmentVariables.get("IECORE_LOG_LEVEL", "")
 
     # Separate batchFrames out so it can be unit tested. Gaffer does not allow creating
     # _TaskBatch objects
@@ -332,13 +340,6 @@ class GafferDeadlineJob(object):
                 )
             )
             environmentVariableCounter += 1
-        # Default to IECORE_LOG_LEVEL=INFO
-        if "IECORE_LOG_LEVEL" not in self._environmentVariables:
-            jobLines.append(
-                "EnvironmentKeyValue{}=IECORE_LOG_LEVEL=INFO".format(
-                    environmentVariableCounter
-                )
-            )
 
         jobFile.write("\n".join(jobLines))
         jobFile.close()

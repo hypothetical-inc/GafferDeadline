@@ -432,6 +432,8 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             deadlineJob.setJobProperties(jobInfo)
             deadlineJob.setPluginProperties(pluginInfo)
 
+            deadlineJob.setLogLevel(deadlinePlug["logLevel"].getValue())
+
             jobFilePath = os.path.join(
                 os.path.split(
                     dispatchData["scriptFile"]
@@ -493,6 +495,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         parentPlug["deadline"]["submitSuspended"] = Gaffer.BoolPlug(defaultValue=False)
         parentPlug["deadline"]["dependencyMode"] = Gaffer.StringPlug()
         parentPlug["deadline"]["dependencyMode"].setValue("Auto")
+        parentPlug["deadline"]["logLevel"] = Gaffer.StringPlug(defaultValue="INFO")
         parentPlug["deadline"]["auxFiles"] = Gaffer.StringVectorDataPlug(
             defaultValue=IECore.StringVectorData()
         )
