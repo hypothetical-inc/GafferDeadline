@@ -4,6 +4,9 @@
   - The GafferDeadline dispatcher plug `threads` can be used to control the thread count on a per job basis. If `threads` is set to 0, it will be ignored when executing the Deadline job.
   - GafferDeadline will also recognize a Deadline Worker's `CpuAffinity` property, if set, and use the number of enabled CPUs as the thread count.
   - If the `threads` plug is non-zero and a Worker has its `CpuAffinity` property enabled, Gaffer will use the lesser of the two values as its thread count.
+- Added `logLevel` :
+  - Added plug to the dispatcher settings to control the `IECORE_LOG_LEVEL` environment variable for submitted jobs.
+  - API : Added `GafferDeadlineJob.setLogLevel()` and `GafferDeadline.getLogLevel()` methods.
 
 # 0.56.1.0
 

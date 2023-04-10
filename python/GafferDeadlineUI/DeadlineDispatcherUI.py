@@ -238,6 +238,19 @@ Gaffer.Metadata.registerNode(
 
             "plugValueWidget:type", "GafferUI.PresetsPlugValueWidget",
         ],
+        "dispatcher.deadline.logLevel": [
+            "description",
+            """
+            The value to use for the environment variable `IECORE_LOG_LEVEL`. Note that some
+            renderers require a particular log level to updated render progress in the Gaffer
+            Deadline plugin.
+            """,
+            "preset:Error", "ERROR",
+            "preset:Warning", "WARNING",
+            "preset:Info", "INFO",
+            "preset:Debug", "DEBUG",
+            "plugValueWidget:type", "GafferUI.PresetsPlugValueWidget",
+        ],
         "dispatcher.deadline.auxFiles": [
             "description",
             """
