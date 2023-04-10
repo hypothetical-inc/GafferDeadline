@@ -251,6 +251,13 @@ Gaffer.Metadata.registerNode(
             "preset:Debug", "DEBUG",
             "plugValueWidget:type", "GafferUI.PresetsPlugValueWidget",
         ],
+        "dispatcher.deadline.outputs": [
+            "description",
+            """
+            The outputs to pass to the Deadline job. Frame substitutions will not be made in
+            order to allow Deadline to substitute frame numbers. All other substitutions are made.
+            """
+        ],
         "dispatcher.deadline.auxFiles": [
             "description",
             """

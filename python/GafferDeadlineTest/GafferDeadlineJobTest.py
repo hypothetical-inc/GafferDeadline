@@ -135,6 +135,28 @@ class GafferDeadlineJobTest(GafferTest.TestCase):
         self.assertEqual(djc.getParentJobByGafferNode(taskNode), djp)
         self.assertEqual(djc.getParentJobByGafferNode(taskNode2), None)
 
+    def testOutputs(self):
+        dj = GafferDeadline.GafferDeadlineJob(GafferDispatchTest.LoggingTaskNode())
+
+        self.assertEqual(dj.getOutputs(), [])
+
+        context = Gaffer.Context()
+        context["putMeInCoach"] = "rudyRudyRudy"
+
+        for input, output in [
+            ("test/path.exr", "test/path.exr"),
+            ("test/path.####.exr", "test/path.####.exr"),
+            ("${putMeInCoach}/path.####.exr", "rudyRudyRudy/path.####.exr")
+        ]:
+            self.assertIn("frame", context)
+            dj.addOutput(input, context)
+            self.assertIn(output, dj.getOutputs())
+
+        self.assertEqual(len(dj.getOutputs()), 3)
+
+        dj.clearOutputs()
+        self.assertEqual(len(dj.getOutputs()), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

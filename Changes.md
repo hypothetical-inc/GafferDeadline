@@ -7,6 +7,12 @@
 - Added `logLevel` :
   - Added plug to the dispatcher settings to control the `IECORE_LOG_LEVEL` environment variable for submitted jobs.
   - API : Added `GafferDeadlineJob.setLogLevel()` and `GafferDeadline.getLogLevel()` methods.
+- Added output support :
+  - Added `outputs` plug to GafferDeadline settings. The values of this plug will use all string substitutions _except_ frame substitutions. This allows Deadline to substitute frame numbers itself.
+  - API : 
+    - Added `GafferDeadlineJob.addOutput()` to add an output with an optional context for substitutions.
+    - Added `GafferDeadlineJob.getOutputs()` to return the current job outputs.
+    - Added `GafferDeadlineJob.clearOutputs()` to remove all job outputs.
 
 # 0.56.1.0
 
