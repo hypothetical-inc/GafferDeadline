@@ -490,11 +490,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         parentPlug["deadline"]["machineList"] = Gaffer.StringPlug()
         parentPlug["deadline"]["isBlackList"] = Gaffer.BoolPlug(defaultValue=False)
         parentPlug["deadline"]["limits"] = Gaffer.StringPlug()
-        parentPlug["deadline"]["onJobComplete"] = Gaffer.StringPlug()
-        parentPlug["deadline"]["onJobComplete"].setValue("Nothing")
+        parentPlug["deadline"]["onJobComplete"] = Gaffer.StringPlug(defaultValue="Nothing")
         parentPlug["deadline"]["submitSuspended"] = Gaffer.BoolPlug(defaultValue=False)
-        parentPlug["deadline"]["dependencyMode"] = Gaffer.StringPlug()
-        parentPlug["deadline"]["dependencyMode"].setValue("Auto")
+        parentPlug["deadline"]["dependencyMode"] = Gaffer.StringPlug(defaultValue="Auto")
         parentPlug["deadline"]["logLevel"] = Gaffer.StringPlug(defaultValue="INFO")
         parentPlug["deadline"]["auxFiles"] = Gaffer.StringVectorDataPlug(
             defaultValue=IECore.StringVectorData()
