@@ -80,6 +80,7 @@ class GafferDeadlineJob(object):
         self._jobId = None
         self._parentJobs = []
         self._tasks = []
+        self._outputs = []
 
         self.setJobProperties(jobProperties)
         self.setPluginProperties(pluginProperties)
@@ -168,6 +169,22 @@ class GafferDeadlineJob(object):
 
     def getContext(self):
         return self._context
+
+    def addOutput(self, output, context=Gaffer.Context()):
+        self._outputs.append(
+           context.substitute(
+                output,
+                IECore.StringAlgo.Substitutions.VariableSubstitutions |
+                IECore.StringAlgo.Substitutions.EscapeSubstitutions |
+                IECore.StringAlgo.Substitutions.TildeSubstitutions
+            )
+        )
+
+    def getOutputs(self):
+        return self._outputs
+
+    def clearOutputs(self):
+        self._outputs = []
 
     def addParentJob(self, parentJob):
         if type(parentJob) != GafferDeadlineJob:
@@ -340,6 +357,13 @@ class GafferDeadlineJob(object):
                 )
             )
             environmentVariableCounter += 1
+
+        outputCounter = 0
+        for o in self.getOutputs():
+            jobLines.append(
+                "OutputFilename{}={}".format(outputCounter, o)
+            )
+            outputCounter += 1
 
         jobFile.write("\n".join(jobLines))
         jobFile.close()
