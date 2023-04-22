@@ -127,7 +127,7 @@ class GafferDeadlineJob(object):
         """
         assert(type(newProperties) == dict)
         self._jobProperties = newProperties
-        self._jobProperties.setdefault("Plugin", "Gaffer")
+        self._jobProperties.update({"Plugin": "Gaffer"})
 
     def getJobProperties(self):
         return self._jobProperties

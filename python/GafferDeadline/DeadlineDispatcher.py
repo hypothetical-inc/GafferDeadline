@@ -41,7 +41,7 @@ import IECore
 import Gaffer
 import GafferDispatch
 
-import GafferDeadline
+from .GafferDeadlineJob import GafferDeadlineJob
 
 
 class DeadlineDispatcher(GafferDispatch.Dispatcher):
@@ -118,7 +118,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             context.substitute(self["jobName"].getValue()) or "untitled"
         )
 
-        rootDeadlineJob = GafferDeadline.GafferDeadlineJob(rootBatch.node())
+        rootDeadlineJob = GafferDeadlineJob(rootBatch.node())
         rootDeadlineJob.setAuxFiles([dispatchData["scriptFile"]])
         self.__addGafferDeadlineJob(rootDeadlineJob)
         rootJobs = []
@@ -134,7 +134,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
     def __buildDeadlineJobWalk(self, batch, dispatchData):
         if (
-            GafferDeadline.GafferDeadlineJob.isControlTask(batch.node()) and
+            GafferDeadlineJob.isControlTask(batch.node()) and
             batch.node()["dispatcher"]["batchSize"].getValue() > 1
         ):
             raise RuntimeError(            
@@ -146,7 +146,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
         deadlineJob = self.__getGafferDeadlineJob(batch.node(), batch.context())
         if not deadlineJob:
-            deadlineJob = GafferDeadline.GafferDeadlineJob(batch.node())
+            deadlineJob = GafferDeadlineJob(batch.node())
             deadlineJob.setContext(batch.context())
             deadlineJob.setAuxFiles([dispatchData["scriptFile"]])
             self.__addGafferDeadlineJob(deadlineJob)
@@ -179,7 +179,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
         # Don't submit command tasks, they pollute the Deadline Monitor and cause
         # potentially lengthy delays in dequeuing tasks that do nothing.
-        if(GafferDeadline.GafferDeadlineJob.isControlTask(deadlineJob.getGafferNode())):
+        if(GafferDeadlineJob.isControlTask(deadlineJob.getGafferNode())):
             return None
 
         # this job is already submitted if it has an ID
@@ -217,10 +217,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         "Name": gafferNode.relativeName(dispatchData["scriptNode"]),
                         "Frames": frameString,
                         "ChunkSize": chunkSize,
-                        "Plugin": "Gaffer" if not isinstance(
-                            gafferNode,
-                            GafferDeadline.DeadlineTask
-                        ) else gafferNode["plugin"].getValue(),
+                        "Plugin": "Gaffer",
                         "BatchName": dispatchData["deadlineBatch"],
                         "Comment": context.substitute(deadlinePlug["comment"].getValue()),
                         "Department": context.substitute(deadlinePlug["department"].getValue()),
@@ -377,11 +374,11 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     if frameDependent:
                         jobInfo.update({"IsFrameDependent": True})
                         deadlineJob.setDependencyType(
-                            GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
+                            GafferDeadlineJob.DeadlineDependencyType.FrameToFrame
                         )
                     else:
                         deadlineJob.setDependencyType(
-                            GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.JobToJob
+                            GafferDeadlineJob.DeadlineDependencyType.JobToJob
                         )
                 else:
                     jobInfo.update(
@@ -401,28 +398,19 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         i += 1
 
                     deadlineJob.setDependencyType(
-                        GafferDeadline.GafferDeadlineJob.DeadlineDependencyType.Scripted
+                        GafferDeadlineJob.DeadlineDependencyType.Scripted
                     )
             else:
-                deadlineJob.setDependencyType(
-                    GafferDeadline.GafferDeadlineJob.DeadlineDependencyType._None
-                )
+                deadlineJob.setDependencyType(GafferDeadlineJob.DeadlineDependencyType._None)
 
-            pluginInfo = {}
-            if not isinstance(gafferNode, GafferDeadline.DeadlineTask):
-                pluginInfo = {
-                    "Script": os.path.split(dispatchData["scriptFile"])[-1],
-                    "Version": Gaffer.About.versionString(),
-                    "IgnoreScriptLoadErrors": False,
-                    "Nodes": gafferNode.relativeName(dispatchData["scriptNode"]),
-                    "Frames": "<STARTFRAME>-<ENDFRAME>",
-                    "Threads": deadlinePlug["threads"].getValue(),
-                }
-            else:
-                data = IECore.CompoundData()
-                gafferNode["parameters"].fillCompoundData(data)
-                pluginInfo = dict(data)
-
+            pluginInfo = {
+                "Script": os.path.split(dispatchData["scriptFile"])[-1],
+                "Version": Gaffer.About.versionString(),
+                "IgnoreScriptLoadErrors": False,
+                "Nodes": gafferNode.relativeName(dispatchData["scriptNode"]),
+                "Frames": "<STARTFRAME>-<ENDFRAME>",
+                "Threads": deadlinePlug["threads"].getValue(),
+            }
             scriptContext = dispatchData["scriptNode"].context()
             contextArgs = []
             for entry in [
@@ -441,7 +429,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                             "\"{}\"".format(repr(deadlineJob.getContext()[entry]))
                         ]
                     )
-            if contextArgs and not isinstance(gafferNode, GafferDeadline.DeadlineTask):
+            if contextArgs:
                 pluginInfo["Context"] = " ".join(contextArgs)
 
             deadlineJob.setJobProperties(jobInfo)

@@ -38,6 +38,5 @@ from . import DeadlineDispatcherUI
 from .ListWidget import ListWidget
 from .DeadlineListPlugValueWidget import DeadlineListPlugValueWidget
 from .ListSelectionDialog import ListSelectionDialog
-from . import DeadlineTaskUI
 
 __import__("IECore").loadConfig("GAFFER_STARTUP_PATHS", {}, subdirectory="GafferDeadlineUI")
