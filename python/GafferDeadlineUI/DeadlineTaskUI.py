@@ -1,6 +1,6 @@
 ##########################################################################
 #
-#  Copyright (c) 2019, Hypothetical Inc. All rights reserved.
+#  Copyright (c) 2023, Hypothetical Inc. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
@@ -34,10 +34,29 @@
 #
 ##########################################################################
 
-from . import DeadlineDispatcherUI
-from .ListWidget import ListWidget
-from .DeadlineListPlugValueWidget import DeadlineListPlugValueWidget
-from .ListSelectionDialog import ListSelectionDialog
-from . import DeadlineTaskUI
+import GafferDeadline
 
-__import__("IECore").loadConfig("GAFFER_STARTUP_PATHS", {}, subdirectory="GafferDeadlineUI")
+import Gaffer
+
+Gaffer.Metadata.registerNode(
+    GafferDeadline.DeadlineTask,
+    "description",
+    """
+    Submit a native Deadline job.
+    """,
+    plugs={
+        "plugin": [
+            "description",
+            """
+            The name of the Deadline plugin to submit.
+            """,
+        ],
+        "parameters": [
+            "description",
+            """
+            A list of parameters to submit to Deadline. Consult the Deadline documentation for a
+            list of required and optional parameters for the plugin.
+            """,
+        ],
+    }
+)

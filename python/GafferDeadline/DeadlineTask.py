@@ -1,6 +1,6 @@
 ##########################################################################
 #
-#  Copyright (c) 2019, Hypothetical Inc. All rights reserved.
+#  Copyright (c) 2023, Hypothetical Inc. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are
@@ -34,10 +34,39 @@
 #
 ##########################################################################
 
-from . import DeadlineDispatcherUI
-from .ListWidget import ListWidget
-from .DeadlineListPlugValueWidget import DeadlineListPlugValueWidget
-from .ListSelectionDialog import ListSelectionDialog
-from . import DeadlineTaskUI
+import IECore
 
-__import__("IECore").loadConfig("GAFFER_STARTUP_PATHS", {}, subdirectory="GafferDeadlineUI")
+import Gaffer
+import GafferDispatch
+
+
+class DeadlineTask(GafferDispatch.TaskNode):
+    def __init__(self, name="DeadlineTask"):
+        GafferDispatch.TaskNode.__init__(self, name)
+
+        self["plugin"] = Gaffer.StringPlug()
+        self["parameters"] = Gaffer.CompoundDataPlug()
+
+    def hash(self, context):
+        # Normally this would return `IECore.MurmurHash()` unconditionally because
+        # we don't do anything in `execute()`. But Deadline does, so we create a hash
+        # so we actually get batches to dispatch
+
+        plugin = self["plugin"].getValue()
+        if plugin == "":
+            return IECore.MurmurHash()
+
+        h = GafferDispatch.TaskNode.hash(self, context)
+
+        h.append(context.getFrame())
+
+        h.append(plugin)
+        self["parameters"].hash(h)
+
+        return h
+
+    def execute(self):
+        pass
+
+
+IECore.registerRunTimeTyped(DeadlineTask, typeName="GafferDeadline::DeadlineTask")
