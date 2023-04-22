@@ -1,3 +1,7 @@
+# 0.57.x.x
+
+- Reduced the severity of the check on no-op node batch size from an error to a warning.
+
 # 0.57.1.0
 
 - Added `GafferDeadline.DeadlineTask` node. Instead of submitting a `Gaffer` plugin to Deadline, this node will submit any plugin, set by the `plugin` plug. Plugin parameters can be added to the `parameters` plug and will be submitted with the job.
