@@ -80,14 +80,14 @@ class GafferDeadlineTask(object):
         return hash(h)
 
     def setTaskNumber(self, taskNumber):
-        assert(type(taskNumber) == int)
+        assert type(taskNumber) == int
         self._taskNumber = taskNumber
 
     def getTaskNumber(self):
         return self._taskNumber
 
     def setGafferBatch(self, gafferBatch):
-        assert(gafferBatch is None or type(gafferBatch) == GafferDispatch.Dispatcher._TaskBatch)
+        assert gafferBatch is None or type(gafferBatch) == GafferDispatch.Dispatcher._TaskBatch
         self._gafferBatch = gafferBatch
 
     def getGafferBatch(self):

@@ -34,6 +34,8 @@
 #
 ##########################################################################
 
+import unittest
+
 from .DocumentationTest import DocumentationTest
 
 if __name__ == "__main__":

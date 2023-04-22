@@ -191,7 +191,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
         # Don't submit command tasks, they pollute the Deadline Monitor and cause
         # potentially lengthy delays in dequeuing tasks that do nothing.
-        if(GafferDeadline.GafferDeadlineJob.isControlTask(deadlineJob.getGafferNode())):
+        if GafferDeadline.GafferDeadlineJob.isControlTask(deadlineJob.getGafferNode()):
             return None
 
         # this job is already submitted if it has an ID

@@ -125,7 +125,7 @@ class GafferDeadlineJob(object):
         """ The only parameter Deadline requires is Plugin and because we are
         focusing on Gaffer plugins, make sure that's always set.
         """
-        assert(type(newProperties) == dict)
+        assert type(newProperties) == dict
         self._jobProperties = newProperties
         self._jobProperties.setdefault("Plugin", "Gaffer")
 
@@ -139,14 +139,14 @@ class GafferDeadlineJob(object):
         return self._dependencyType
 
     def setPluginProperties(self, newProperties):
-        assert(type(newProperties) == dict)
+        assert type(newProperties) == dict
         self._pluginProperties = newProperties.copy()
 
     def getPluginProperties(self):
         return self._pluginProperties
 
     def setAuxFiles(self, newAuxFiles):
-        assert(type(newAuxFiles) == list or type(newAuxFiles) == str)
+        assert type(newAuxFiles) == list or type(newAuxFiles) == str
         newAuxFiles = newAuxFiles if type(newAuxFiles) == list else [newAuxFiles]
         self._auxFiles = newAuxFiles
 
@@ -230,7 +230,7 @@ class GafferDeadlineJob(object):
         """ A batch corresponds to one or more Deadline Tasks
         Deadline Tasks must be sequential frames with only a start and end frame
         """
-        assert(newBatch is None or type(newBatch) == GafferDispatch.Dispatcher._TaskBatch)
+        assert newBatch is None or type(newBatch) == GafferDispatch.Dispatcher._TaskBatch
         # some TaskNodes like TaskList and TaskWedge submit with no frames because they are just
         # hierarchy placeholders they still need to be in for proper dependency handling
         if len(batchFrames) > 0:
