@@ -45,7 +45,7 @@ from GafferDeadline import DeadlineTools
 class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
 
     def __init__(self, plug, listString="", **kw):
-        assert(type(listString) == str)
+        assert type(listString) == str
 
         self.__row = GafferUI.ListContainer(
             GafferUI.ListContainer.Orientation.Horizontal,
@@ -115,7 +115,7 @@ class DeadlineListPlugValueWidget(GafferUI.PlugValueWidget):
         with self.getContext():
             with IECore.IgnoredExceptions(ValueError):
                 self.__listString = self.getPlug().getValue()
-                assert(type(self.__listString) == str)
+                assert type(self.__listString) == str
 
         self.listWidget().setEditable(self._editable())
         self.__row[1].setEnabled(self._editable())  # button

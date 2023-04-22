@@ -1083,8 +1083,15 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         with mock.patch(
             "GafferDeadline.DeadlineTools.submitJob",
             return_value=("testID", "testMessage")
-        ):
-            self.assertRaises(RuntimeError, dispatcher.dispatch, [s["n2"]])
+        ), IECore.CapturingMessageHandler() as mh:
+            dispatcher.dispatch([s["n2"]])
+            warnings = [i for i in mh.messages if i.level == IECore.Msg.Level.Warning]
+            self.assertEqual(len(warnings), 50)
+            for warning in warnings:
+                self.assertEqual(
+                    warning.message,
+                    "No-Op node t1 has a batch size greater than 1 which will be ignored."
+                )
 
 
 if __name__ == "__main__":
