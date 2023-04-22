@@ -1,3 +1,7 @@
+# 0.58.0.0
+
+- Added `GafferDeadline.DeadlineTask` node. Instead of submitting a `Gaffer` plugin to Deadline, this node will submit any plugin, set by the `plugin` plug. Plugin parameters can be added to the `parameters` plug and will be submitted with the job.
+
 # 0.57.0.0
 
 - Added controls for Gaffer's `-threads` command line parameter.

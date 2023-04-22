@@ -39,5 +39,6 @@ from .GafferDeadlineJob import GafferDeadlineJob
 from .GafferDeadlineTask import GafferDeadlineTask
 from .GafferDeadlineDependency import GafferDeadlineDependency
 from .DeadlineTools import *
+from .DeadlineTask import DeadlineTask
 
 __import__("IECore").loadConfig("GAFFER_STARTUP_PATHS", {}, subdirectory="GafferDeadline")
