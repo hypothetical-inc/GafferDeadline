@@ -16,14 +16,23 @@ Index=0
 Default=True
 Description=Not configurable.
 
-[Executable1_2_1_0]
+[Executable1_2_10_1]
 Type=multilinemultifilename
-Category=Gaffer 1.2.1.0 Executables
+Category=Gaffer 1.2.10.1 Executables
 CategoryOrder=0
 CategoryIndex=0
-Label=Gaffer 1.2.1.0 Render Executable
-Default=%HOME%/gaffer_1.2.1.0;~/gaffer_1.2.1.0
-Description=The path to the Gaffer 1.2.1.0 executable (gaffer.cmd on Windows) file used for executing. Enter alternative paths on separate lines.
+Label=Gaffer 1.2.10.1 Render Executable
+Default=%HOME%/gaffer_1.2.10.1;~/gaffer_1.2.10.1
+Description=The path to the Gaffer 1.2.10.1 executable (gaffer.cmd on Windows) file used for executing. Enter alternative paths on separate lines.
+
+[Executable1_3_2_0]
+Type=multilinemultifilename
+Category=Gaffer 1.3.2.0 Executables
+CategoryOrder=0
+CategoryIndex=0
+Label=Gaffer 1.3.2.0 Render Executable
+Default=%HOME%/gaffer_1.3.2.0;~/gaffer_1.3.2.0
+Description=The path to the Gaffer 1.3.2.0 executable (gaffer.cmd on Windows) file used for executing. Enter alternative paths on separate lines.
 
 [EnablePathMapping]
 Type=boolean

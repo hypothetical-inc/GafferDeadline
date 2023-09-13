@@ -1,6 +1,8 @@
 # 0.57.x.x
 
 - Reduced the severity of the check on no-op node batch size from an error to a warning.
+- Removed support for Gaffer versions `1.2.1.0` and `1.2.6.0`
+- Added support for Gaffer versions `1.3.2.0` and `1.2.10.1`
 
 # 0.57.1.0
 
