@@ -98,6 +98,9 @@ class GafferPlugin(DeadlinePlugin):
         self.AddStdoutHandlerCallback(".*Subdividing frame ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshFrameProgress
         self.AddStdoutHandlerCallback(".*Processing voxel ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshVoxelProgress
 
+        # Arnold progress
+        self.AddStdoutHandlerCallback(".*([0-9]+)% done").HandleCallback += self.HandleArnoldProgress
+
         # GafferVRay progress matches that of VRay
         self.AddStdoutHandlerCallback("error:.*").HandleCallback += self.HandleGafferVRayStdoutError
         self.AddStdoutHandlerCallback(".*Rendering image.*:\s*([0-9]*\.[0-9]*)%.*").HandleCallback += self.HandleGafferVRayStdoutProgress
@@ -230,6 +233,10 @@ class GafferPlugin(DeadlinePlugin):
 
     def HandleGafferVRayStdoutClosing(self):
         self.SetStatusMessage("Job Complete")
+
+    def HandleArnoldProgress(self):
+        self.Progress = float(self.GetRegexMatch(1))
+        self.UpdateProgress()
 
     # Helper Functions
     def UpdateProgress(self):
