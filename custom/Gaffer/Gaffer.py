@@ -99,7 +99,7 @@ class GafferPlugin(DeadlinePlugin):
         self.AddStdoutHandlerCallback(".*Processing voxel ([0-9]+) of ([0-9]+).*").HandleCallback += self.HandlePly2VrmeshVoxelProgress
 
         # Arnold progress
-        self.AddStdoutHandlerCallback(".*([0-9]+)% done").HandleCallback += self.HandleArnoldProgress
+        self.AddStdoutHandlerCallback("([0-9]+)% done").HandleCallback += self.HandleArnoldProgress
 
         # GafferVRay progress matches that of VRay
         self.AddStdoutHandlerCallback("error:.*").HandleCallback += self.HandleGafferVRayStdoutError
