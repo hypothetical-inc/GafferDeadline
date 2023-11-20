@@ -69,6 +69,8 @@ class GafferPlugin(DeadlinePlugin):
     CurrFrame = 0
     
     def __init__(self):
+        super().__init__()
+
         self.InitializeProcessCallback += self.InitializeProcess
         # self.RenderTasksCallback += self.RenderTasks
         self.RenderExecutableCallback += self.GetRenderExecutable
