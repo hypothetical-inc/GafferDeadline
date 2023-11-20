@@ -4,6 +4,7 @@
 - Removed support for Gaffer versions `1.2.1.0` and `1.2.6.0`
 - Added support for Gaffer versions `1.3.7.0` and `1.2.10.5`
 - Added support for Arnold progress updates in the Deadline plugin.
+- Update Deadline Plugin to use Python 3.
 
 # 0.57.1.0
 
