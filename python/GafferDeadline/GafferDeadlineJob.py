@@ -148,7 +148,7 @@ class GafferDeadlineJob(object):
     def setAuxFiles(self, newAuxFiles):
         assert type(newAuxFiles) == list or type(newAuxFiles) == str
         newAuxFiles = newAuxFiles if type(newAuxFiles) == list else [newAuxFiles]
-        self._auxFiles = newAuxFiles
+        self._auxFiles = [str(f) for f in newAuxFiles]
 
     def getAuxFiles(self):
         return self._auxFiles
