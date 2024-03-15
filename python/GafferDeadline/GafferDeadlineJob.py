@@ -41,6 +41,7 @@ import IECore
 
 import Gaffer
 import GafferDispatch
+import GafferScene
 
 from . import DeadlineTools
 from .GafferDeadlineTask import GafferDeadlineTask
@@ -315,6 +316,7 @@ class GafferDeadlineJob(object):
             GafferDispatch.TaskSwitch,
             GafferDispatch.Wedge,
             GafferDispatch.TaskContextVariables,  # this node is deprecated and will be removed
+            GafferScene.RenderPassWedge,
         ]
 
     def submitJob(self, jobFilePath=None, pluginFilePath=None):

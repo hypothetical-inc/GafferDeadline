@@ -1,4 +1,5 @@
 # 0.57.x.x
+- Added support for `GafferScene.RenderPassWedge`. This fixes the error `TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'` raised when attempting to dispatch a `RenderPassWedge`.
 
 # 0.57.2.0
 
