@@ -1,4 +1,6 @@
 # 0.57.x.x
+
+# 0.57.3.0
 - Fixed bug causing an error when dispatching when passing `pathlib.Path` values to `GafferDeadlineJob.setAuxFiles()`.
 - Added support for `GafferScene.RenderPassWedge`. This fixes the error `TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'` raised when attempting to dispatch a `RenderPassWedge`.
 
