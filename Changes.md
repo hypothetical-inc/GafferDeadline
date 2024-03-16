@@ -1,4 +1,5 @@
 # 0.57.x.x
+- Add menu entry `/Dispatch/Deadline Dispatch` for compatibility with Gaffer 1.4.
 
 # 0.57.3.0
 - Fixed bug causing an error when dispatching when passing `pathlib.Path` values to `GafferDeadlineJob.setAuxFiles()`.
