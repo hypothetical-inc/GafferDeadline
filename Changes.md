@@ -1,4 +1,6 @@
 # 0.58.x.x
+
+# 0.58.0.0
 - Add menu entry `/Dispatch/Deadline Dispatch` for compatibility with Gaffer 1.4.
 - Gaffer.param :
   - Drop support for Gaffer versions 1.2.10.5 and 1.3.14.0.
