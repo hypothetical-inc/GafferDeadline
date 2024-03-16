@@ -465,13 +465,13 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 os.path.split(
                     dispatchData["scriptFile"]
                 )[0],
-                gafferNode.relativeName(dispatchData["scriptNode"]) + ".job"
+                str(gafferNode.hash(deadlineJob.getContext())) + ".job"
             )
             pluginFilePath = os.path.join(
                 os.path.split(
                     dispatchData["scriptFile"]
                 )[0],
-                gafferNode.relativeName(dispatchData["scriptNode"]) + ".plugin"
+                str(gafferNode.hash(deadlineJob.getContext())) + ".plugin"
             )
 
             jobId, output = deadlineJob.submitJob(
