@@ -461,23 +461,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
             deadlineJob.setLogLevel(deadlinePlug["logLevel"].getValue())
 
-            jobFilePath = os.path.join(
-                os.path.split(
-                    dispatchData["scriptFile"]
-                )[0],
-                str(gafferNode.hash(deadlineJob.getContext())) + ".job"
-            )
-            pluginFilePath = os.path.join(
-                os.path.split(
-                    dispatchData["scriptFile"]
-                )[0],
-                str(gafferNode.hash(deadlineJob.getContext())) + ".plugin"
-            )
-
-            jobId, output = deadlineJob.submitJob(
-                jobFilePath=jobFilePath,
-                pluginFilePath=pluginFilePath
-            )
+            jobId, output = deadlineJob.submitJob(self.jobDirectory())
             if jobId is None:
                 IECore.Log.error(jobInfo["Name"], "failed to submit to Deadline.", output)
             else:

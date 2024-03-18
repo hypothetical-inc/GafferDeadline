@@ -1,9 +1,14 @@
 # 0.58.x.x
 
-# 0.58.0.0
+# 0.58.0.0b2
+- Fixed error `Context has no variable named "frame"` when dispatching with `DeadlineDispatch`.
+- *Breaking change* : Changed the API for `GafferDeadlineJob.submitJob()`. It now takes a single directory where the job and plugin submission files will be saved. 
+- *Breaking change* : Temporary job submission files are given random names by Python's `tempfile` module instead of attempting to use the hash of the dispatch node.
+
+# 0.58.0.0b1
 - Add menu entry `/Dispatch/Deadline Dispatch` for compatibility with Gaffer 1.4.
 - Gaffer.param :
-  - Drop support for Gaffer versions 1.2.10.5 and 1.3.14.0.
+  - Drop support for Gaffer versions 1.2.10.5 and 1.3.7.0.
   - Add support for Gaffer versions 1.3.14.0 and 1.4.0.0b4.
 - *Breaking change* : Changed the naming of the temporary files created at submission time to send settings to Deadline. Files are now named by the hash of the task node.
 
