@@ -319,7 +319,7 @@ class GafferDeadlineJob(object):
             GafferScene.RenderPassWedge,
         ]
 
-    def submitJob(self, jobFilePath=None, pluginFilePath=None):
+    def submitJob(self, jobDirectory):
         """ Submit the job to Deadline.
         Returns a tuple of (submittedJobId, deadlineStatusOutput). submittedJobId
         will be None if submission failed. deadlineStatusOutput can be used to help figure out
@@ -332,18 +332,12 @@ class GafferDeadlineJob(object):
 
         Job and plugin files are just serializations of their respective dictionaries in the
         form of key=value separated by newlines.
-
-        If the jobFile or pluginFile are not supplied, create temp files for them.
-        Only remove temp files, not supplied files.
         """
         for auxFile in self._auxFiles:
             if not os.path.isfile(auxFile):
                 raise IOError("{} does not exist".format(auxFile))
 
-        if jobFilePath is None:
-            jobFile = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
-        else:
-            jobFile = open(jobFilePath, mode="w")
+        jobFile = tempfile.NamedTemporaryFile(mode="w", suffix=".job", delete=False, dir=jobDirectory)
 
         self._jobProperties.update(self._deadlineSettings)
         jobLines = [
@@ -370,10 +364,8 @@ class GafferDeadlineJob(object):
         jobFile.write("\n".join(jobLines))
         jobFile.close()
 
-        if pluginFilePath is None:
-            pluginFile = tempfile.NamedTemporaryFile(mode="w", suffix=".info", delete=False)
-        else:
-            pluginFile = open(pluginFilePath, mode="w")
+        pluginFile = tempfile.NamedTemporaryFile(mode="w", suffix=".plugin", delete=False, dir=jobDirectory)
+
         pluginLines = [
             "{}={}".format(
                 k,
@@ -390,10 +382,5 @@ class GafferDeadlineJob(object):
         if result[0] is None:
             raise RuntimeError("Deadline submission failed: \n{}".format(result[1]))
         self._jobId = result[0]
-
-        if jobFile is None:
-            os.remove(jobFile)
-        if pluginFile is None:
-            os.remove(pluginFile)
 
         return (self._jobId, result[1])
