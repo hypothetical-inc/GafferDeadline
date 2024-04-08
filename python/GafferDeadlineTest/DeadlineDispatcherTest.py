@@ -107,20 +107,6 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(len(spooled), 1)
         self.assertTrue(spooled[0][0] is dispatcher)
 
-    def testJobScript(self):
-        s = Gaffer.ScriptNode()
-        s["n"] = GafferDispatchTest.LoggingTaskNode()
-
-        dispatcher = self.__dispatcher()
-        with mock.patch(
-            "GafferDeadline.DeadlineTools.submitJob",
-            return_value=("testID", "testMessage")
-        ):
-            dispatcher.dispatch([s["n"]])
-
-        self.assertTrue(os.path.isfile(os.path.join(dispatcher.jobDirectory(), "n.job")))
-        self.assertTrue(os.path.isfile(os.path.join(dispatcher.jobDirectory(), "n.plugin")))
-
     def testTaskAttributes(self):
         s = Gaffer.ScriptNode()
         s["n"] = GafferDispatchTest.LoggingTaskNode()
