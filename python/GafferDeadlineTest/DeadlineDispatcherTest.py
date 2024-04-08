@@ -34,7 +34,6 @@
 #
 ##########################################################################
 
-import os
 import unittest
 from unittest import mock
 
@@ -53,9 +52,7 @@ import GafferDeadline
 class DeadlineDispatcherTest(GafferTest.TestCase):
     def __dispatcher(self):
         dispatcher = GafferDeadline.DeadlineDispatcher()
-        dispatcher["jobsDirectory"].setValue(
-            os.path.join(self.temporaryDirectory(), "testJobDirectory").replace("\\", "\\\\")
-        )
+        dispatcher["jobsDirectory"].setValue(self.temporaryDirectory() / "testJobDirectory")
 
         return dispatcher
 
@@ -1078,6 +1075,49 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
                     warning.message,
                     "No-Op node t1 has a batch size greater than 1 which will be ignored."
                 )
+
+    def testContext(self):
+        s = Gaffer.ScriptNode()
+
+        s["n"] = GafferDispatchTest.LoggingTaskNode()
+        s["n"]["dispatcher"]["deadline"]["deadlineSettings"].addChild(
+            Gaffer.NameValuePlug(
+                "Name",
+                IECore.StringData("${wedge:value}"),
+                True,
+                "member1",
+                Gaffer.Plug.Direction.In,
+                Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+            )
+        )
+        s["n"]["dispatcher"]["deadline"]["environmentVariables"].addChild(
+            Gaffer.NameValuePlug(
+                "Index",
+                IECore.StringData("${wedge:index}"),
+                True,
+                "member2",
+                Gaffer.Plug.Direction.In,
+                Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+            )
+        )
+
+        s["w"] = GafferDispatch.Wedge()
+        s["w"]["preTasks"][0].setInput(s["n"]["task"])
+        s["w"]["mode"].setValue(GafferDispatch.Wedge.Mode.StringList)
+        s["w"]["strings"].setValue(IECore.StringVectorData(["I'mAName"]))
+
+        s["d"] = GafferDeadline.DeadlineDispatcher()
+        s["d"]["preTasks"][0].setInput(s["w"]["task"])
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["w"]])
+
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].getJobProperties()["Name"], "I'mAName")
+        self.assertEqual(jobs[0].getEnvironmentVariables()["Index"], "0")
 
 
 if __name__ == "__main__":
