@@ -216,6 +216,9 @@ class GafferDeadlineJob(object):
     def appendEnvironmentVariable(self, name, value):
         self._environmentVariables[name] = value
 
+    def getEnvironmentVariables(self):
+        return self._environmentVariables
+
     def appendDeadlineSetting(self, name, value):
         self._deadlineSettings[name] = value
 

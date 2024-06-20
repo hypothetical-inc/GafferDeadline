@@ -263,14 +263,15 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
             environmentVariables = IECore.CompoundData()
 
-            deadlinePlug["environmentVariables"].fillCompoundData(environmentVariables)
-            for name, value in environmentVariables.items():
-                deadlineJob.appendEnvironmentVariable(name, context.substitute(str(value)))
+            with Gaffer.Context(context) as c:
+                deadlinePlug["environmentVariables"].fillCompoundData(environmentVariables)
+                for name, value in environmentVariables.items():
+                    deadlineJob.appendEnvironmentVariable(name, str(value))
 
-            deadlineSettings = IECore.CompoundData()
-            deadlinePlug["deadlineSettings"].fillCompoundData(deadlineSettings)
-            for name, value in deadlineSettings.items():
-                deadlineJob.appendDeadlineSetting(name, context.substitute(str(value)))
+                deadlineSettings = IECore.CompoundData()
+                deadlinePlug["deadlineSettings"].fillCompoundData(deadlineSettings)
+                for name, value in deadlineSettings.items():
+                    deadlineJob.appendDeadlineSetting(name, str(value))
 
             """ Dependencies are stored with a reference to the Deadline job since job IDs weren't
             assigned when the task tree was walked. Now that parent jobs have been submitted and
