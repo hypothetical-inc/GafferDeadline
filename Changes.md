@@ -1,6 +1,7 @@
 # 0.58.x.x
 - API : Added `GafferDeadlineJob.environmentVariables()` method.
 - Fixed bug that prevented context variables from being substituted in the `deadlineSettings` and `environmentVariables` plugs.
+- Updated supported Gaffer versions to `1.3.16.5` and `1.4.7.0`.
 
 # 0.58.0.0b2
 - Fixed error `Context has no variable named "frame"` when dispatching with `DeadlineDispatch`.
