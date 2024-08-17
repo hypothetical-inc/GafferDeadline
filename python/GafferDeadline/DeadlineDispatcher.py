@@ -238,28 +238,24 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         GafferDeadline.DeadlineTask
                     ) else gafferNode["plugin"].getValue(),
                     "BatchName": deadlinePlug["batchName"].getValue(),
-                    "Comment": c.substitute(deadlinePlug["comment"].getValue()),
-                    "Department": c.substitute(deadlinePlug["department"].getValue()),
-                    "Pool": c.substitute(deadlinePlug["pool"].getValue()),
-                    "SecondaryPool": c.substitute(
-                        deadlinePlug["secondaryPool"].getValue()
-                    ),
-                    "Group": c.substitute(deadlinePlug["group"].getValue()),
+                    "Comment": deadlinePlug["comment"].getValue(),
+                    "Department": deadlinePlug["department"].getValue(),
+                    "Pool": deadlinePlug["pool"].getValue(),
+                    "SecondaryPool": deadlinePlug["secondaryPool"].getValue(),
+                    "Group": deadlinePlug["group"].getValue(),
                     "Priority": deadlinePlug["priority"].getValue(),
                     "TaskTimeoutMinutes": int(deadlinePlug["taskTimeout"].getValue()),
                     "EnableAutoTimeout": deadlinePlug["enableAutoTimeout"].getValue(),
                     "ConcurrentTasks": deadlinePlug["concurrentTasks"].getValue(),
                     "MachineLimit": deadlinePlug["machineLimit"].getValue(),
-                    machineListType: c.substitute(
-                        deadlinePlug["machineList"].getValue()
-                    ),
-                    "LimitGroups": c.substitute(deadlinePlug["limits"].getValue()),
+                    machineListType: deadlinePlug["machineList"].getValue(),
+                    "LimitGroups": deadlinePlug["limits"].getValue(),
                     "OnJobComplete": deadlinePlug["onJobComplete"].getValue(),
                     "InitialStatus": initialStatus,
                 }
 
                 auxFiles = deadlineJob.getAuxFiles()   # this will already have substitutions included
-                auxFiles += [c.substitute(f) for f in deadlinePlug["auxFiles"].getValue()]
+                auxFiles += [f for f in deadlinePlug["auxFiles"].getValue()]
                 deadlineJob.setAuxFiles(auxFiles)
 
                 for output in deadlinePlug["outputs"].getValue():
