@@ -286,6 +286,34 @@ Gaffer.Metadata.registerNode(
             """,
             "layout:section", "Environment Variables",
         ],
+        "dispatcher.deadline.extraDeadlineSettings": [
+            "description",
+            """
+            An additional set of Deadline settings for the job. Arbitrary numbers
+            of settings may be specified within a single `IECore.CompoundObject`,
+            where each key/value pair in the object defines a setting.
+            This is convenient when using an expression to define the settings
+            and the setting count might be dynamic.
+
+            If the same setting is defined by both the settings and the
+            extraSettings plugs, then the value from the extraSettings
+            is taken.
+            """
+        ],
+        "dispatcher.deadline.extraEnvironmentVariables": [
+            "description",
+            """
+            An additional set of environment variables for the job. Arbitrary numbers
+            of variables may be specified within a single `IECore.CompoundObject`,
+            where each key/value pair in the object defines a variable.
+            This is convenient when using an expression to define the variables
+            and the setting count might be dynamic.
+
+            If the same variable is defined by both the variables and the
+            extraEnvironmentVariables plugs, then the value from the
+            extraEnvironmentVariables is taken.
+            """
+        ],
     }
 
 )

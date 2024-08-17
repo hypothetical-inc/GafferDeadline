@@ -264,11 +264,17 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 environmentVariables = IECore.CompoundData()
 
                 deadlinePlug["environmentVariables"].fillCompoundData(environmentVariables)
+                extraEnvironmentVariables = deadlinePlug["extraEnvironmentVariables"].getValue()
+                for name, value in extraEnvironmentVariables.items():
+                    environmentVariables[name] = value
                 for name, value in environmentVariables.items():
                     deadlineJob.appendEnvironmentVariable(name, str(value))
 
                 deadlineSettings = IECore.CompoundData()
                 deadlinePlug["deadlineSettings"].fillCompoundData(deadlineSettings)
+                extraDeadlineSettings = deadlinePlug["extraDeadlineSettings"].getValue()
+                for name, value in extraDeadlineSettings.items():
+                    deadlineSettings[name] = value
                 for name, value in deadlineSettings.items():
                     deadlineJob.appendDeadlineSetting(name, str(value))
 
@@ -513,6 +519,8 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         )
         parentPlug["deadline"]["deadlineSettings"] = Gaffer.CompoundDataPlug()
         parentPlug["deadline"]["environmentVariables"] = Gaffer.CompoundDataPlug()
+        parentPlug["deadline"]["extraDeadlineSettings"] = Gaffer.CompoundObjectPlug()
+        parentPlug["deadline"]["extraEnvironmentVariables"] = Gaffer.CompoundObjectPlug()
 
 
 IECore.registerRunTimeTyped(DeadlineDispatcher, typeName="GafferDeadline::DeadlineDispatcher")

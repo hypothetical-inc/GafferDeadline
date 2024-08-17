@@ -1121,6 +1121,62 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(jobs[0].getEnvironmentVariables()["Index"], "0")
         self.assertEqual(jobs[0].getJobProperties()["Comment"], "I'mAName")
 
+    def testExtra(self):
+        s = Gaffer.ScriptNode()
+
+        s["n"] = GafferDispatchTest.LoggingTaskNode()
+        s["n"]["dispatcher"]["deadline"]["deadlineSettings"].addChild(
+            Gaffer.NameValuePlug(
+                "Name",
+                IECore.StringData("NotLittleDebbie"),
+                True,
+                "member1",
+                Gaffer.Plug.Direction.In,
+                Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+            )
+        )
+        s["n"]["dispatcher"]["deadline"]["environmentVariables"].addChild(
+            Gaffer.NameValuePlug(
+                "Index",
+                IECore.StringData("1000"),
+                True,
+                "member2",
+                Gaffer.Plug.Direction.In,
+                Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic
+            )
+        )
+        s["n"]["dispatcher"]["deadline"]["extraDeadlineSettings"].setValue(
+            IECore.CompoundObject(
+                {
+                    "Name": IECore.StringData("LittleDebbie"),
+                    "MachineName": IECore.StringData("Francis"),
+                }
+            )
+        )
+        s["n"]["dispatcher"]["deadline"]["extraEnvironmentVariables"].setValue(
+            IECore.CompoundObject(
+                {
+                    "Index": IECore.IntData(0),
+                    "ARNOLD_ROOT": IECore.StringData("/arnoldRoot"),
+                }
+            )
+        )
+
+        s["d"] = GafferDeadline.DeadlineDispatcher()
+        s["d"]["preTasks"][0].setInput(s["n"]["task"])
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["n"]])
+
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].getJobProperties()["Name"], "LittleDebbie")
+        self.assertEqual(jobs[0].getJobProperties()["MachineName"], "Francis")
+        self.assertEqual(jobs[0].getEnvironmentVariables()["Index"], "0")
+        self.assertEqual(jobs[0].getEnvironmentVariables()["ARNOLD_ROOT"], "/arnoldRoot")
+
 
 if __name__ == "__main__":
     unittest.main()
