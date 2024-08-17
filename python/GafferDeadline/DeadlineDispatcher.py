@@ -113,10 +113,8 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
         dispatchData["scriptNode"].serialiseToFile(dispatchData["scriptFile"])
 
-        context = Gaffer.Context.current()
-        dispatchData["deadlineBatch"] = (
-            context.substitute(self["jobName"].getValue()) or "untitled"
-        )
+        with Gaffer.Context.current() as c:
+            dispatchData["dispatchJobName"] = self["jobName"].getValue()
 
         rootDeadlineJob = GafferDeadline.GafferDeadlineJob(rootBatch.node())
         rootDeadlineJob.setAuxFiles([dispatchData["scriptFile"]])
@@ -226,36 +224,38 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
             with Gaffer.Context(deadlineJob.getContext()) as c:
                 jobInfo = {
-                    "Name": gafferNode.relativeName(dispatchData["scriptNode"]),
+                    "Name": (
+                        "{}{}{}".format(
+                            dispatchData["dispatchJobName"],
+                            "." if dispatchData["dispatchJobName"] else "",
+                            gafferNode.relativeName(dispatchData["scriptNode"]),
+                        )
+                    ),
                     "Frames": frameString,
                     "ChunkSize": chunkSize,
                     "Plugin": "Gaffer" if not isinstance(
                         gafferNode,
                         GafferDeadline.DeadlineTask
                     ) else gafferNode["plugin"].getValue(),
-                    "BatchName": dispatchData["deadlineBatch"],
-                    "Comment": c.substitute(deadlinePlug["comment"].getValue()),
-                    "Department": c.substitute(deadlinePlug["department"].getValue()),
-                    "Pool": c.substitute(deadlinePlug["pool"].getValue()),
-                    "SecondaryPool": c.substitute(
-                        deadlinePlug["secondaryPool"].getValue()
-                    ),
-                    "Group": c.substitute(deadlinePlug["group"].getValue()),
+                    "BatchName": deadlinePlug["batchName"].getValue(),
+                    "Comment": deadlinePlug["comment"].getValue(),
+                    "Department": deadlinePlug["department"].getValue(),
+                    "Pool": deadlinePlug["pool"].getValue(),
+                    "SecondaryPool": deadlinePlug["secondaryPool"].getValue(),
+                    "Group": deadlinePlug["group"].getValue(),
                     "Priority": deadlinePlug["priority"].getValue(),
                     "TaskTimeoutMinutes": int(deadlinePlug["taskTimeout"].getValue()),
                     "EnableAutoTimeout": deadlinePlug["enableAutoTimeout"].getValue(),
                     "ConcurrentTasks": deadlinePlug["concurrentTasks"].getValue(),
                     "MachineLimit": deadlinePlug["machineLimit"].getValue(),
-                    machineListType: c.substitute(
-                        deadlinePlug["machineList"].getValue()
-                    ),
-                    "LimitGroups": c.substitute(deadlinePlug["limits"].getValue()),
+                    machineListType: deadlinePlug["machineList"].getValue(),
+                    "LimitGroups": deadlinePlug["limits"].getValue(),
                     "OnJobComplete": deadlinePlug["onJobComplete"].getValue(),
                     "InitialStatus": initialStatus,
                 }
 
                 auxFiles = deadlineJob.getAuxFiles()   # this will already have substitutions included
-                auxFiles += [c.substitute(f) for f in deadlinePlug["auxFiles"].getValue()]
+                auxFiles += [f for f in deadlinePlug["auxFiles"].getValue()]
                 deadlineJob.setAuxFiles(auxFiles)
 
                 for output in deadlinePlug["outputs"].getValue():
@@ -485,6 +485,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             return
 
         parentPlug["deadline"] = Gaffer.Plug()
+        parentPlug["deadline"]["batchName"] = Gaffer.StringPlug(defaultValue="${script:name}")
         parentPlug["deadline"]["comment"] = Gaffer.StringPlug()
         parentPlug["deadline"]["department"] = Gaffer.StringPlug()
         parentPlug["deadline"]["pool"] = Gaffer.StringPlug()

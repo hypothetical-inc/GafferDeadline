@@ -70,6 +70,13 @@ Gaffer.Metadata.registerNode(
 
         ],
 
+        "dispatcher.deadline.batchName": [
+            "description",
+            """
+            The name of the Deadline batch for this job.
+            """
+        ],
+
         "dispatcher.deadline.comment": [
             "description",
             """

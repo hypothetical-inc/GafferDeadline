@@ -2,6 +2,8 @@
 
 - Fixed bug that prevented context variables from being substituted into GafferDeadline plugs. (#79)
 - Added `extraDeadlineSettings` and `extraEnvironmentVariables` plugs. These can be set by an expression to add arbitrary numbers of Deadline settings and environment variables. Entries in these plugs will take precedence over identically named settings / variables in the `deadlineSettings` and `environmentVariables` plugs.
+- *Breaking change* : Changed job names to be `${dispatcher.jobName}.${taskNodeName}`.
+- Added `batchName` plug to allow easy customization of the batch name. Previously it would be set to the dispatcher's `jobName` plug value unless overridden in `deadlineSettings`. The default value is the same as dispatchers' `jobName` default value, so unless you change the `batchName` plug value, batches will be named the same as previously.
 
 # 0.58.0.0b3
 - API : Added `GafferDeadlineJob.environmentVariables()` method.
