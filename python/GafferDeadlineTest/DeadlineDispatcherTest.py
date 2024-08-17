@@ -1177,6 +1177,47 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(jobs[0].getEnvironmentVariables()["Index"], "0")
         self.assertEqual(jobs[0].getEnvironmentVariables()["ARNOLD_ROOT"], "/arnoldRoot")
 
+    def testName(self):
+        s = Gaffer.ScriptNode()
+
+        s["n"] = GafferDispatchTest.LoggingTaskNode()
+
+        s["d"] = GafferDeadline.DeadlineDispatcher()
+        s["d"]["jobsDirectory"].setValue(self.temporaryDirectory() / "testJobDirectory")
+        s["d"]["preTasks"][0].setInput(s["n"]["task"])
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["n"]], dispatcher=s["d"])
+
+        self.assertEqual(jobs[0].getJobProperties()["Name"], "n")
+
+        s["d"]["jobName"].setValue("Harvey")
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["n"]], dispatcher=s["d"])
+
+        self.assertEqual(jobs[0].getJobProperties()["Name"], "Harvey.n")
+
+        s["n"]["dispatcher"]["deadline"]["extraDeadlineSettings"].setValue(
+            IECore.CompoundObject(
+                {
+                    "Name": IECore.StringData("LittleDebbie"),
+                }
+            )
+        )
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["n"]], dispatcher=s["d"])
+
+        self.assertEqual(jobs[0].getJobProperties()["Name"], "LittleDebbie")
+
 
 if __name__ == "__main__":
     unittest.main()

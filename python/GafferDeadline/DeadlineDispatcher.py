@@ -113,10 +113,9 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
         dispatchData["scriptNode"].serialiseToFile(dispatchData["scriptFile"])
 
-        context = Gaffer.Context.current()
-        dispatchData["deadlineBatch"] = (
-            context.substitute(self["jobName"].getValue()) or "untitled"
-        )
+        with Gaffer.Context.current() as c:
+            dispatchData["deadlineBatch"] = self["jobName"].getValue()
+            dispatchData["dispatchJobName"] = self["jobName"].getValue()
 
         rootDeadlineJob = GafferDeadline.GafferDeadlineJob(rootBatch.node())
         rootDeadlineJob.setAuxFiles([dispatchData["scriptFile"]])
@@ -226,7 +225,13 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
 
             with Gaffer.Context(deadlineJob.getContext()) as c:
                 jobInfo = {
-                    "Name": gafferNode.relativeName(dispatchData["scriptNode"]),
+                    "Name": (
+                        "{}{}{}".format(
+                            dispatchData["dispatchJobName"],
+                            "." if dispatchData["dispatchJobName"] else "",
+                            gafferNode.relativeName(dispatchData["scriptNode"]),
+                        )
+                    ),
                     "Frames": frameString,
                     "ChunkSize": chunkSize,
                     "Plugin": "Gaffer" if not isinstance(
