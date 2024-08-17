@@ -1,6 +1,7 @@
 # 0.58.x.x
 
 - Fixed bug that prevented context variables from being substituted into GafferDeadline plugs. (#79)
+- Added `extraDeadlineSettings` and `extraEnvironmentVariables` plugs. These can be set by an expression to add arbitrary numbers of Deadline settings and environment variables. Entries in these plugs will take precedence over identically named settings / variables in the `deadlineSettings` and `environmentVariables` plugs.
 
 # 0.58.0.0b3
 - API : Added `GafferDeadlineJob.environmentVariables()` method.
