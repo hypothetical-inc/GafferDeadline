@@ -114,7 +114,6 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         dispatchData["scriptNode"].serialiseToFile(dispatchData["scriptFile"])
 
         with Gaffer.Context.current() as c:
-            dispatchData["deadlineBatch"] = self["jobName"].getValue()
             dispatchData["dispatchJobName"] = self["jobName"].getValue()
 
         rootDeadlineJob = GafferDeadline.GafferDeadlineJob(rootBatch.node())
@@ -238,7 +237,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                         gafferNode,
                         GafferDeadline.DeadlineTask
                     ) else gafferNode["plugin"].getValue(),
-                    "BatchName": dispatchData["deadlineBatch"],
+                    "BatchName": deadlinePlug["batchName"].getValue(),
                     "Comment": c.substitute(deadlinePlug["comment"].getValue()),
                     "Department": c.substitute(deadlinePlug["department"].getValue()),
                     "Pool": c.substitute(deadlinePlug["pool"].getValue()),
@@ -490,6 +489,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
             return
 
         parentPlug["deadline"] = Gaffer.Plug()
+        parentPlug["deadline"]["batchName"] = Gaffer.StringPlug(defaultValue="${script:name}")
         parentPlug["deadline"]["comment"] = Gaffer.StringPlug()
         parentPlug["deadline"]["department"] = Gaffer.StringPlug()
         parentPlug["deadline"]["pool"] = Gaffer.StringPlug()
