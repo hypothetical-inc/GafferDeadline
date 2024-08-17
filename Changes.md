@@ -1,5 +1,6 @@
 # 0.58.x.x
 
+- Fixed bug that prevented context variables from being substituted into GafferDeadline plugs. (#79)
 
 # 0.58.0.0b3
 - API : Added `GafferDeadlineJob.environmentVariables()` method.
