@@ -224,46 +224,45 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 else:
                     frameString += ",{}-{}".format(t.getStartFrame(), t.getEndFrame())
 
-            context = deadlineJob.getContext()
-            jobInfo = {
-                        "Name": gafferNode.relativeName(dispatchData["scriptNode"]),
-                        "Frames": frameString,
-                        "ChunkSize": chunkSize,
-                        "Plugin": "Gaffer" if not isinstance(
-                            gafferNode,
-                            GafferDeadline.DeadlineTask
-                        ) else gafferNode["plugin"].getValue(),
-                        "BatchName": dispatchData["deadlineBatch"],
-                        "Comment": context.substitute(deadlinePlug["comment"].getValue()),
-                        "Department": context.substitute(deadlinePlug["department"].getValue()),
-                        "Pool": context.substitute(deadlinePlug["pool"].getValue()),
-                        "SecondaryPool": context.substitute(
-                            deadlinePlug["secondaryPool"].getValue()
-                        ),
-                        "Group": context.substitute(deadlinePlug["group"].getValue()),
-                        "Priority": deadlinePlug["priority"].getValue(),
-                        "TaskTimeoutMinutes": int(deadlinePlug["taskTimeout"].getValue()),
-                        "EnableAutoTimeout": deadlinePlug["enableAutoTimeout"].getValue(),
-                        "ConcurrentTasks": deadlinePlug["concurrentTasks"].getValue(),
-                        "MachineLimit": deadlinePlug["machineLimit"].getValue(),
-                        machineListType: context.substitute(
-                            deadlinePlug["machineList"].getValue()
-                        ),
-                        "LimitGroups": context.substitute(deadlinePlug["limits"].getValue()),
-                        "OnJobComplete": deadlinePlug["onJobComplete"].getValue(),
-                        "InitialStatus": initialStatus,
-                        }
+            with Gaffer.Context(deadlineJob.getContext()) as c:
+                jobInfo = {
+                    "Name": gafferNode.relativeName(dispatchData["scriptNode"]),
+                    "Frames": frameString,
+                    "ChunkSize": chunkSize,
+                    "Plugin": "Gaffer" if not isinstance(
+                        gafferNode,
+                        GafferDeadline.DeadlineTask
+                    ) else gafferNode["plugin"].getValue(),
+                    "BatchName": dispatchData["deadlineBatch"],
+                    "Comment": c.substitute(deadlinePlug["comment"].getValue()),
+                    "Department": c.substitute(deadlinePlug["department"].getValue()),
+                    "Pool": c.substitute(deadlinePlug["pool"].getValue()),
+                    "SecondaryPool": c.substitute(
+                        deadlinePlug["secondaryPool"].getValue()
+                    ),
+                    "Group": c.substitute(deadlinePlug["group"].getValue()),
+                    "Priority": deadlinePlug["priority"].getValue(),
+                    "TaskTimeoutMinutes": int(deadlinePlug["taskTimeout"].getValue()),
+                    "EnableAutoTimeout": deadlinePlug["enableAutoTimeout"].getValue(),
+                    "ConcurrentTasks": deadlinePlug["concurrentTasks"].getValue(),
+                    "MachineLimit": deadlinePlug["machineLimit"].getValue(),
+                    machineListType: c.substitute(
+                        deadlinePlug["machineList"].getValue()
+                    ),
+                    "LimitGroups": c.substitute(deadlinePlug["limits"].getValue()),
+                    "OnJobComplete": deadlinePlug["onJobComplete"].getValue(),
+                    "InitialStatus": initialStatus,
+                }
 
-            auxFiles = deadlineJob.getAuxFiles()   # this will already have substitutions included
-            auxFiles += [context.substitute(f) for f in deadlinePlug["auxFiles"].getValue()]
-            deadlineJob.setAuxFiles(auxFiles)
+                auxFiles = deadlineJob.getAuxFiles()   # this will already have substitutions included
+                auxFiles += [c.substitute(f) for f in deadlinePlug["auxFiles"].getValue()]
+                deadlineJob.setAuxFiles(auxFiles)
 
-            for output in deadlinePlug["outputs"].getValue():
-                deadlineJob.addOutput(output, context)
+                for output in deadlinePlug["outputs"].getValue():
+                    deadlineJob.addOutput(output, c)
 
-            environmentVariables = IECore.CompoundData()
+                environmentVariables = IECore.CompoundData()
 
-            with Gaffer.Context(context) as c:
                 deadlinePlug["environmentVariables"].fillCompoundData(environmentVariables)
                 for name, value in environmentVariables.items():
                     deadlineJob.appendEnvironmentVariable(name, str(value))

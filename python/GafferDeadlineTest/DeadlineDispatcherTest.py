@@ -1080,6 +1080,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         s = Gaffer.ScriptNode()
 
         s["n"] = GafferDispatchTest.LoggingTaskNode()
+        s["n"]["dispatcher"]["deadline"]["comment"].setValue("${wedge:value}")
         s["n"]["dispatcher"]["deadline"]["deadlineSettings"].addChild(
             Gaffer.NameValuePlug(
                 "Name",
@@ -1118,6 +1119,7 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(len(jobs), 1)
         self.assertEqual(jobs[0].getJobProperties()["Name"], "I'mAName")
         self.assertEqual(jobs[0].getEnvironmentVariables()["Index"], "0")
+        self.assertEqual(jobs[0].getJobProperties()["Comment"], "I'mAName")
 
 
 if __name__ == "__main__":
