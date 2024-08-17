@@ -12,6 +12,8 @@
 - *Breaking change* : Changed job names to be `${dispatcher.jobName}.${taskNodeName}`. (#80)
 - Added `batchName` plug to allow easy customization of the batch name. Previously it would be set to the dispatcher's `jobName` plug value unless overridden in `deadlineSettings`. The default value is the same as dispatchers' `jobName` default value, so unless you change the `batchName` plug value, batches will be named the same as previously.
 
+- Updated supported Gaffer versions to `1.3.16.7` and `1.4.11.0`.
+
 # 0.57.3.0
 - Fixed bug causing an error when dispatching when passing `pathlib.Path` values to `GafferDeadlineJob.setAuxFiles()`.
 - Added support for `GafferScene.RenderPassWedge`. This fixes the error `TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType'` raised when attempting to dispatch a `RenderPassWedge`.
