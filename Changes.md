@@ -1,3 +1,7 @@
+# 0.59.0.0
+
+- *Breaking Change* : Changed plug type of `extraDeadlineSettings` and `extraEnvironmentVariables` to `AtomicCompoundDataPlug`. This allows the values to be set by registering `userDefault` metadata and prevents adding non-sensical data such as shaders to these plugs. **It will break existing expressions connected to these plugs.** The broken expression nodes will still exist and can be reconnected by replacing the `__disconnected = IECore.CompoundObjectData( YourCompoundData )` variable assignment with `parent[YourNodeName]["dispatcher"]["deadline"]["extraDeadlineSettings"] = IECore.CompoundData( YourCompoundData )` or  `parent[YourNodeName]["dispatcher"]["deadline"]["extraEnvironmentVariables"] = IECore.CompoundData( YourCompoundData )`.
+
 # 0.58.0.0
 
 - Add menu entry `/Dispatch/Deadline Dispatch` for compatibility with Gaffer 1.4.
