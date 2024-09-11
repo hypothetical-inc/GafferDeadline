@@ -520,8 +520,8 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
         )
         parentPlug["deadline"]["deadlineSettings"] = Gaffer.CompoundDataPlug()
         parentPlug["deadline"]["environmentVariables"] = Gaffer.CompoundDataPlug()
-        parentPlug["deadline"]["extraDeadlineSettings"] = Gaffer.CompoundObjectPlug()
-        parentPlug["deadline"]["extraEnvironmentVariables"] = Gaffer.CompoundObjectPlug()
+        parentPlug["deadline"]["extraDeadlineSettings"] = Gaffer.AtomicCompoundDataPlug()
+        parentPlug["deadline"]["extraEnvironmentVariables"] = Gaffer.AtomicCompoundDataPlug()
 
 
 IECore.registerRunTimeTyped(DeadlineDispatcher, typeName="GafferDeadline::DeadlineDispatcher")

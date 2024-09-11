@@ -1146,20 +1146,16 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
             )
         )
         s["n"]["dispatcher"]["deadline"]["extraDeadlineSettings"].setValue(
-            IECore.CompoundObject(
-                {
-                    "Name": IECore.StringData("LittleDebbie"),
-                    "MachineName": IECore.StringData("Francis"),
-                }
-            )
+            {
+                "Name": IECore.StringData("LittleDebbie"),
+                "MachineName": IECore.StringData("Francis"),
+            }
         )
         s["n"]["dispatcher"]["deadline"]["extraEnvironmentVariables"].setValue(
-            IECore.CompoundObject(
-                {
-                    "Index": IECore.IntData(0),
-                    "ARNOLD_ROOT": IECore.StringData("/arnoldRoot"),
-                }
-            )
+            {
+                "Index": IECore.IntData(0),
+                "ARNOLD_ROOT": IECore.StringData("/arnoldRoot"),
+            }
         )
 
         s["d"] = GafferDeadline.DeadlineDispatcher()
@@ -1204,11 +1200,9 @@ class DeadlineDispatcherTest(GafferTest.TestCase):
         self.assertEqual(jobs[0].getJobProperties()["Name"], "Harvey.n")
 
         s["n"]["dispatcher"]["deadline"]["extraDeadlineSettings"].setValue(
-            IECore.CompoundObject(
-                {
-                    "Name": IECore.StringData("LittleDebbie"),
-                }
-            )
+            {
+                "Name": IECore.StringData("LittleDebbie"),
+            }
         )
         with mock.patch(
             "GafferDeadline.DeadlineTools.submitJob",
