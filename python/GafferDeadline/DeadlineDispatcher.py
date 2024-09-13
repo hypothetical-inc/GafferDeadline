@@ -270,6 +270,10 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 for name, value in environmentVariables.items():
                     deadlineJob.appendEnvironmentVariable(name, str(value))
 
+                if hasattr(GafferDeadline, "DefaultDeadlineEnvVar"):
+                    for name, value in GafferDeadline.DefaultDeadlineEnvVar.items():
+                        deadlineJob.appendEnvironmentVariable(name, str(value)) 
+
                 deadlineSettings = IECore.CompoundData()
                 deadlinePlug["deadlineSettings"].fillCompoundData(deadlineSettings)
                 extraDeadlineSettings = deadlinePlug["extraDeadlineSettings"].getValue()
