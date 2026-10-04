@@ -67,22 +67,30 @@ class DeadlineTaskTest(GafferTest.TestCase):
         s["n"]["parameters"].addChild(
             Gaffer.NameValuePlug("stringSetting", IECore.StringData("value1"))
         )
+        s["n"]["parameters"].addChild(
+            Gaffer.NameValuePlug("contextVariableStringSetting", IECore.StringData("${contextVariable}_contextVariableString"))
+        )
         s["n"]["parameters"].addChild(Gaffer.NameValuePlug("intSetting", IECore.IntData(50)))
         s["n"]["parameters"].addChild(Gaffer.NameValuePlug("boolSetting", IECore.BoolData(True)))
+
+        s["c"] = Gaffer.ContextVariables()
+        s["c"].setup(GafferDispatch.TaskNode.TaskPlug())
+        s["c"]["in"].setInput(s["n"]["task"])
+        s["c"]["variables"].addChild(Gaffer.NameValuePlug("contextVariable", IECore.StringData("Testing123"), flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic))
 
         dispatcher = self.__dispatcher()
         with mock.patch(
             "GafferDeadline.DeadlineTools.submitJob",
             return_value=("testID", "testMessage")
         ):
-            dispatcher.dispatch([s["n"]])
+            dispatcher.dispatch([s["c"]])
 
         jobSettings = {
             "Name": "n",
             "Frames": ",1",
             "ChunkSize": "1",
             "Plugin": "customPlugin",
-            "BatchName": "untitled",
+            "BatchName": "",
             "Comment": "",
             "Department": "",
             "Pool": "",
@@ -100,13 +108,14 @@ class DeadlineTaskTest(GafferTest.TestCase):
             "EnvironmentKeyValue0": "IECORE_LOG_LEVEL=INFO",
         }
 
-        self.__assertSettings(dispatcher.jobDirectory() / "n.job", jobSettings)
+        self.__assertSettings(next(iter(dispatcher.jobDirectory().glob("*.job"))), jobSettings)
         self.__assertSettings(
-            dispatcher.jobDirectory() / "n.plugin",
+            next(iter(dispatcher.jobDirectory().glob("*.plugin"))),
             {
                 "stringSetting": "value1",
                 "intSetting": "50",
                 "boolSetting": "1",
+                "contextVariableStringSetting" : "Testing123_contextVariableString",
             }
         )
 
@@ -121,7 +130,7 @@ class DeadlineTaskTest(GafferTest.TestCase):
 
         jobSettings["Frames"] = "," + ",".join([str(i) for i in range(1, 101)])
 
-        self.__assertSettings(dispatcher.jobDirectory() / "n.job", jobSettings)
+        self.__assertSettings(next(iter(dispatcher.jobDirectory().glob("*.job"))), jobSettings)
 
         s["n"]["dispatcher"]["batchSize"].setValue(10)
 
@@ -134,7 +143,7 @@ class DeadlineTaskTest(GafferTest.TestCase):
         jobSettings["ChunkSize"] = "10"
         jobSettings["Frames"] = ",1-10,11-20,21-30,31-40,41-50,51-60,61-70,71-80,81-90,91-100"
 
-        self.__assertSettings(dispatcher.jobDirectory() / "n.job", jobSettings)
+        self.__assertSettings(next(iter(dispatcher.jobDirectory().glob("*.job"))), jobSettings)
 
 
 if __name__ == "__main__":

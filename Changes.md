@@ -1,5 +1,6 @@
-# 0.59.x.x
+# 0.59.0.2
 - Fixed bug in `gaffer_batch_dependency.py` that prevented it from running in Python3. (#92)
+- Fixed bug where DeadlineTask nodes were not performing context variable substitution on parameters. (#91)
 
 # 0.59.0.1
 - Fixed bug where a task downstream of a Wedge task would only depend on one of the upstream wedged task / context combinations.
