@@ -437,9 +437,10 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                     "Threads": deadlinePlug["threads"].getValue(),
                 }
             else:
-                data = IECore.CompoundData()
-                gafferNode["parameters"].fillCompoundData(data)
-                pluginInfo = dict(data)
+                with deadlineJob.getContext() :
+                    data = IECore.CompoundData()
+                    gafferNode["parameters"].fillCompoundData(data)
+                    pluginInfo = dict(data)
 
             scriptContext = dispatchData["scriptNode"].context()
             contextArgs = []
