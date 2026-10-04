@@ -82,7 +82,8 @@ def __main__(jobID, taskIDs=None):
                     jobDependencyIds.append(jobDep)
                     dependencies.append(newDep)
 
-        if printDebug: print("Found {} dependencies".format(len(dependencies)))
+        if printDebug:
+            print("Found {} dependencies".format(len(dependencies)))
 
         jobDependencyIds = list(set(jobDependencyIds))
         # if no dependencies, release all tasks
@@ -90,7 +91,8 @@ def __main__(jobID, taskIDs=None):
             return taskIDs
 
         for jobDepId in jobDependencyIds:
-            if printDebug: print "Scanning {} for released dependencies".format(jobDepId)
+            if printDebug:
+                print("Scanning {} for released dependencies".format(jobDepId))
             jobDepObj = RepositoryUtils.GetJob(jobDep, False)
             # If the job can't be found, assume it is ok to release it's dependents
             if jobDepObj is None:
@@ -100,7 +102,8 @@ def __main__(jobID, taskIDs=None):
             else:
                 jobDepTaskList = RepositoryUtils.GetJobTasks(jobDepObj, False).TaskCollectionTasks
                 completedTasks = [t for t in jobDepTaskList if t.TaskStatus.lower() == "completed"]
-                if printDebug: print "{} has {} completed tasks of {} total tasks: {}".format(jobDepId, len(completedTasks), len(jobDepTaskList), [t.TaskId for t in completedTasks])
+                if printDebug:
+                    print("{} has {} completed tasks of {} total tasks: {}".format(jobDepId, len(completedTasks), len(jobDepTaskList), [t.TaskId for t in completedTasks]))
                 for completedTask in completedTasks:
                     for d in dependencies:
                         if d.jobDependencyId == jobDepId and d.dependencyTaskId == int(completedTask.TaskId):
@@ -109,16 +112,20 @@ def __main__(jobID, taskIDs=None):
 
         releasedTasks = []
         for task in dependencies:
-            if printDebug: print "Scanning task #{} for dependencies".format(task.taskId)
+            if printDebug:
+                print("Scanning task #{} for dependencies".format(task.taskId))
             depsForThisTask = list(set([t for t in dependencies if t.taskId == task.taskId]))
-            # print "Task #{} has {} dependencies: {}".format(task.taskId, len(depsForThisTask), ",".join([d.dependencyTaskId for d in depsForThisTask]))
+            # print("Task #{} has {} dependencies: {}".format(task.taskId, len(depsForThisTask), ",".join([d.dependencyTaskId for d in depsForThisTask])))
             releasedDeps = list(set([d for d in depsForThisTask if d.isReleased]))
-            if printDebug: print "Task #{} has {} released dependencies".format(task.taskId, len(releasedDeps))
+            if printDebug:
+                print("Task #{} has {} released dependencies".format(task.taskId, len(releasedDeps)))
             if(len(depsForThisTask) == len(releasedDeps)):
                 releasedTasks.append(str(task.taskId))
-                if printDebug: print "All dependencies for task #{} have been completed. Releasing task #{}".format(task.taskId, task.taskId)
+                if printDebug:
+                    print("All dependencies for task #{} have been completed. Releasing task #{}".format(task.taskId, task.taskId))
 
-        if printDebug: print("Released tasks for {} = {}".format(jobID, releasedTasks))
+        if printDebug:
+            print("Released tasks for {} = {}".format(jobID, releasedTasks))
         return list(set(releasedTasks))
 
     # not entirely sure what to do about a job that does not have frame dependencies enabled, that is considered an error state

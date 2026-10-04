@@ -1,3 +1,6 @@
+# 0.59.x.x
+- Fixed bug in `gaffer_batch_dependency.py` that prevented it from running in Python3. (#92)
+
 # 0.59.0.1
 - Fixed bug where a task downstream of a Wedge task would only depend on one of the upstream wedged task / context combinations.
 
@@ -10,7 +13,7 @@
 - Add menu entry `/Dispatch/Deadline Dispatch` for compatibility with Gaffer 1.4.
 - *Breaking change* : Changed the naming of the temporary files created at submission time to send settings to Deadline. Files are now named by the hash of the task node.
 - Fixed error `Context has no variable named "frame"` when dispatching with `DeadlineDispatch`.
-- *Breaking change* : Changed the API for `GafferDeadlineJob.submitJob()`. It now takes a single directory where the job and plugin submission files will be saved. 
+- *Breaking change* : Changed the API for `GafferDeadlineJob.submitJob()`. It now takes a single directory where the job and plugin submission files will be saved.
 - *Breaking change* : Temporary job submission files are given random names by Python's `tempfile` module instead of attempting to use the hash of the dispatch node.
 - API : Added `GafferDeadlineJob.environmentVariables()` method.
 - Fixed bug that prevented context variables from being substituted in the `deadlineSettings` and `environmentVariables` plugs.
@@ -49,7 +52,7 @@
   - API : Added `GafferDeadlineJob.setLogLevel()` and `GafferDeadline.getLogLevel()` methods.
 - Added output support :
   - Added `outputs` plug to GafferDeadline settings. The values of this plug will use all string substitutions _except_ frame substitutions. This allows Deadline to substitute frame numbers itself.
-  - API : 
+  - API :
     - Added `GafferDeadlineJob.addOutput()` to add an output with an optional context for substitutions.
     - Added `GafferDeadlineJob.getOutputs()` to return the current job outputs.
     - Added `GafferDeadlineJob.clearOutputs()` to remove all job outputs.
@@ -72,6 +75,6 @@
 - Deadline Plugin : Added this Changes.md file to track changes. For previous updates, see the release history at https://github.com/hypothetical-inc/GafferDeadline/releases
 - Added support for Gaffer 0.60.7.0 and 0.60.8.0.
 - Task Logging : Fixed logging of Gaffer errors. Previously the Gaffer Deadline plugin would terminate at the first line containing "ERROR : ", but Gaffer prints the more interesting error information on subsequent lines.
-    
+
 ## Breaking Changes
 - A task will now **only** error if Gaffer exits with a non-zero exit code. To accomplish this in a PythonCommand, you can `raise RuntimeError("Error Message")` or `assert`. Outputting "ERROR : ", for example from `IECore.msg(IECore.Msg.Level.Error...)`, will no longer fail the task.
