@@ -440,7 +440,7 @@ class DeadlineDispatcher(GafferDispatch.Dispatcher):
                 with deadlineJob.getContext() :
                     data = IECore.CompoundData()
                     gafferNode["parameters"].fillCompoundData(data)
-                    pluginInfo = dict(data)
+                    pluginInfo = {k: str(v) for k, v in data.items()}
 
             scriptContext = dispatchData["scriptNode"].context()
             contextArgs = []
