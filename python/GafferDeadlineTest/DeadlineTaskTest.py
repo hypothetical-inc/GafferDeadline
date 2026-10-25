@@ -53,6 +53,21 @@ class DeadlineTaskTest(GafferTest.TestCase):
 
         return dispatcher
 
+    def __job(self, nodes, dispatcher=None):
+        jobs = []
+
+        def f(dispatcher, job):
+            jobs.append(job)
+
+        c = GafferDeadline.DeadlineDispatcher.preSpoolSignal().connect(f, scoped=True)
+
+        if dispatcher is None:
+            dispatcher = self.__dispatcher()
+
+        dispatcher.dispatch(nodes)
+
+        return jobs
+
     def __assertSettings(self, fileName, settings):
         with open(fileName) as file:
             fileSettings = {
@@ -144,6 +159,32 @@ class DeadlineTaskTest(GafferTest.TestCase):
         jobSettings["Frames"] = ",1-10,11-20,21-30,31-40,41-50,51-60,61-70,71-80,81-90,91-100"
 
         self.__assertSettings(next(iter(dispatcher.jobDirectory().glob("*.job"))), jobSettings)
+
+    def testDependency(self):
+        s = Gaffer.ScriptNode()
+        s["d"] = GafferDeadline.DeadlineTask()
+        s["d"]["plugin"].setValue("CommandLine")
+        s["d"]["parameters"].addChild(
+            Gaffer.NameValuePlug("Executable", IECore.StringData("echo"), flags=Gaffer.Plug.Flags.Default | Gaffer.Plug.Flags.Dynamic)
+        )
+
+        s["g"] = GafferDispatch.SystemCommand()
+        s["g"]["command"].setValue("echo heyo")
+        s["g"]["preTasks"][0].setInput(s["d"]["task"])
+
+        with mock.patch(
+            "GafferDeadline.DeadlineTools.submitJob",
+            return_value=("testID", "testMessage")
+        ):
+            jobs = self.__job([s["g"]])
+
+        self.assertEqual(len(jobs), 2)
+        dependencyCount = {"d": 0, "g": 1}
+        for i in range(0, len(jobs)):
+
+            self.assertEqual(
+                len(jobs[i].getParentJobs()), dependencyCount[jobs[i].getJobProperties()["Name"]]
+            )
 
 
 if __name__ == "__main__":
